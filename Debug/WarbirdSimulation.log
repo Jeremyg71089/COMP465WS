@@ -1,0 +1,17 @@
+﻿  Project.cpp
+  GLM: version 0.9.7.6
+  GLM: Windows platform detected
+  GLM: Visual C++ compiler detected
+  GLM: 32 bits model
+  GLM: Platform independent code
+  GLM: C++0x
+  GLM: Language extensions enabled
+  GLM: Swizzling operators disabled, #define GLM_SWIZZLE to enable swizzle operators
+  GLM: .length() returns glm::length_t, a typedef of int following the GLSL specification
+  GLM: Core library included
+  GLM: GLM_GTC_constants extension included
+  GLM: GLM_GTC_matrix_transform extension included
+  GLM: GLM_GTC_quaternion extension included
+  GLM: GLM_GTC_type_ptr extension included
+  WarbirdSimulation.vcxproj -> c:\users\jeremy\documents\comp465projects\WarbirdSimulation\Debug\WarbirdSimulation.exe
+  WarbirdSimulation.vcxproj -> c:\users\jeremy\documents\comp465projects\WarbirdSimulation\Debug\WarbirdSimulation.pdb (Partial PDB)
