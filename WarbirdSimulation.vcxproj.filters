@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Project.cpp">
+    <ClCompile Include="manyModelsStatic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
