@@ -140,7 +140,8 @@ void display() {
   for(int m = 0; m < nModels; m++) {
 	  //for the moons to rotate around Duo equation is different than orbiting around the y axis
 	  if(m == 4 || m == 5 ){
-		  modelMatrix = rotation [3] * glm::translate(glm::mat4(), translate[3]) * rotation[m] * glm::translate(glm::mat4(), translate[m]) *
+		  glm::vec3 temp = glm::rotate(translate[3],currentRadian[3], glm::vec3(0, 1, 0));
+		  modelMatrix = glm::translate(glm::mat4(), temp) *rotation[m] * glm::translate(glm::mat4(), translate[m]) *
 			  glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		  
 	  }
@@ -209,9 +210,12 @@ void update(void) {
 		if (currentRadian[m] >  2 * PI) currentRadian[m] = 0.0f;
 		rotation[m] = glm::rotate(glm::mat4(), currentRadian[m], glm::vec3(0, 1, 0));
 	}
-	/*unumPos = glm::rotate(unumPos, currentRadian[2], glm::vec3(0, 1, 0));
+	glm::vec3 temp2 = glm::rotate(unumPos, currentRadian[2], glm::vec3(0, 1, 0));
 	glm::vec3 temp = glm::rotate(glm::vec3(4000.0f, 0.0f, -8000.0f), currentRadian[2], glm::vec3(0, 1, 0));
-	camera[3] = glm::lookAt(temp, unumPos, glm::vec3(0.0f, 1.0f, 0.0f));*/
+	camera[3] = glm::lookAt(temp, temp2, glm::vec3(0.0f, 1.0f, 0.0f));
+	temp2 = glm::rotate(duoPos, currentRadian[3], glm::vec3(0, 1, 0));
+	temp = glm::rotate(glm::vec3(9000.0f, 0.0f, -8000.0f), currentRadian[3], glm::vec3(0, 1, 0));
+	camera[4] = glm::lookAt(temp, temp2, glm::vec3(0.0f, 1.0f, 0.0f));
 	glutPostRedisplay();
 }
 

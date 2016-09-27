@@ -15,6 +15,5 @@
   GLM: GLM_GTC_type_ptr extension included
   GLM: GLM_GTX_transform extension included
   GLM: GLM_GTX_rotate_vector extension included
-c:\users\jeremy\documents\comp465projects\comp465ws\manymodelsstatic.cpp(66): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-c:\users\jeremy\documents\comp465projects\comp465ws\manymodelsstatic.cpp(66): error C2365: 'showMat4': redefinition; previous definition was 'function'
-  c:\users\jeremy\documents\comp465projects\includes465\glmutils465.hpp(40): note: see declaration of 'showMat4'
+  WarbirdSimulation.vcxproj -> C:\Users\Jeremy\Documents\Comp465Projects\COMP465WS\Debug\WarbirdSimulation.exe
+  WarbirdSimulation.vcxproj -> C:\Users\Jeremy\Documents\Comp465Projects\COMP465WS\Debug\WarbirdSimulation.pdb (Partial PDB)
