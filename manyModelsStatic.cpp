@@ -143,15 +143,10 @@ void display() {
 	  if (m == 4 || m == 5) {
 		  glm::mat4 temp = rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
 		  glm::vec3 temppos = getPosition(temp);
-		  modelMatrix = glm::translate(identity, temppos)*  rotation[m] * glm::translate(identity, translate[m])* glm::scale(glm::mat4(), glm::vec3(scale[m]));
+		  //negative translate to origin rotate and translate back to duo
+		  modelMatrix = glm::translate(identity, temppos)*  rotation[m] * glm::translate(identity, translate[m])*glm::translate(identity, -1.0f * translate[3])* glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		  //multpying by the inverse scale fixes the lunar orbit problem for some reason....
-		  temppos = -(modelBR[m]/modelSize[m]) * translate[3];
 
-		  modelMatrix = modelMatrix*  glm::translate(identity, temppos);
-		  if (n < 10)
-			  showMat4("Model Matrix", modelMatrix);
-
-		  n++;
 	  }
 	 //the regualar equation for rotating around the y axis
 	 else {
