@@ -25,7 +25,7 @@ Mike Barnes
 # include "../includes465/include465.hpp"
 #include "Shape3D.hpp"
 #include "glm/gtx/rotate_vector.hpp"
-
+int n = 0;
 const int X = 0, Y = 1, Z = 2, START = 0, STOP = 1;
 // constants for models:  file names, vertex count, model display size
 const int nModels = 7; // number of models in this scene
@@ -41,6 +41,7 @@ GLuint shaderProgram;
 GLuint VAO[nModels];      // Vertex Array Objects
 GLuint buffer[nModels];   // Vertex Buffer Objects
 int timerDelay = 40;
+glm::mat4 identity(1.0f);
 glm::mat4 rotation[nModels] = {glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4()};
 float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f }; //rotation rates for the orbiting
 float currentRadian[nModels] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f }; //the current radians meant for rotating
@@ -139,13 +140,20 @@ void display() {
   // update model matrix
   for(int m = 0; m < nModels; m++) {
 	  //for the moons to rotate around Duo equation is different than orbiting around the y axis
-	  if(m == 4 || m == 5 ){
-		  glm::vec3 temp = glm::rotate(translate[3],currentRadian[3], glm::vec3(0, 1, 0));
-		  modelMatrix = glm::translate(glm::mat4(), temp) *rotation[m] * glm::translate(glm::mat4(), translate[m]) *
-			  glm::scale(glm::mat4(), glm::vec3(scale[m]));
-		  
+	  if (m == 4 || m == 5) {
+		  glm::mat4 temp = rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
+		  glm::vec3 temppos = getPosition(temp);
+		  modelMatrix = glm::translate(identity, temppos)*  rotation[m] * glm::translate(identity, translate[m])* glm::scale(glm::mat4(), glm::vec3(scale[m]));
+		  //multpying by the inverse scale fixes the lunar orbit problem for some reason....
+		  temppos = -(modelBR[m]/modelSize[m]) * translate[3];
+
+		  modelMatrix = modelMatrix*  glm::translate(identity, temppos);
+		  if (n < 10)
+			  showMat4("Model Matrix", modelMatrix);
+
+		  n++;
 	  }
-	 //the regualar equation for rotating around the y axia
+	 //the regualar equation for rotating around the y axis
 	 else {
 
 		 modelMatrix = rotation[m] * glm::translate(glm::mat4(), translate[m]) *
@@ -208,8 +216,9 @@ void update(void) {
 	for (int m = 0; m < nModels; m++) {
 		currentRadian[m] += rotateRadian[m];
 		if (currentRadian[m] >  2 * PI) currentRadian[m] = 0.0f;
-		rotation[m] = glm::rotate(glm::mat4(), currentRadian[m], glm::vec3(0, 1, 0));
+		rotation[m] = glm::rotate(identity, currentRadian[m], glm::vec3(0, 1, 0));
 	}
+	//using rotations to calculate the position and look at of the camera
 	glm::vec3 temp2 = glm::rotate(unumPos, currentRadian[2], glm::vec3(0, 1, 0));
 	glm::vec3 temp = glm::rotate(glm::vec3(4000.0f, 0.0f, -8000.0f), currentRadian[2], glm::vec3(0, 1, 0));
 	camera[3] = glm::lookAt(temp, temp2, glm::vec3(0.0f, 1.0f, 0.0f));
