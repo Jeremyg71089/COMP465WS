@@ -134,7 +134,7 @@ void display() {
 		//for the moons to rotate around Duo equation is different than orbiting around the y axis
 		if (m == 4 || m == 5) {
 
-			//Testing Scott
+			/*//Testing Scott
 			if ((m == 4) && (j < 1)) {
 				printf("%d:", m);
 				showMat4("Mat4 Contents", glm::mat4());
@@ -151,7 +151,7 @@ void display() {
 				showMat4("Translate Value", glm::translate(identity, translate[3]));
 				showMat4("Scaling Value", glm::scale(glm::mat4(), glm::vec3(scale[3])));
 				showMat4("Temp Primus", rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3])));
-			}
+			}*/
 
 			glm::mat4 temp = rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
 			glm::vec3 temppos = getPosition(temp);
@@ -160,9 +160,9 @@ void display() {
 
 			//negative translate to origin rotate and translate back to duo
 			modelMatrix = temp * rotation[3] * trans * glm::scale(glm::mat4(), glm::vec3(scale[m]));
-			//modelMatrix = glm::translate(identity, temppos) *  rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
+			modelMatrix = glm::translate(identity, temppos) *  rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 			//multiplying by the inverse scale fixes the lunar orbit problem for some reason....
-			j++;
+			//j++;
 		}
 		//Regular equation for rotating around the y-axis
 		else {
