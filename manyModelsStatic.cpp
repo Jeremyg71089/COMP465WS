@@ -123,10 +123,8 @@ void display() {
 
 	//Update model matrix
 	for (int m = 0; m < nModels; m++) {
-
 		//for the moons to rotate around Duo equation is different than orbiting around the y axis
 		if (m == 4 || m == 5) {
-
 			glm::mat4 temp = rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
 			glm::vec3 temppos = getPosition(temp);
 			modelMatrix = glm::translate(identity, temppos) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
@@ -196,7 +194,7 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'a': case 'A':  //Change animation timer for ace mode
 		timerDelay = 5;
 		glutIdleFunc(display);
-		sprintf(timerStr, "%4d", 1000/timerDelay);
+		sprintf(timerStr, "%4d", 1000 / timerDelay);
 		if(idleTimerFlag) idleTimerFlag = false;
 		break;
 	case 'd': case 'D':  //Change animation timer for debug mode
@@ -206,10 +204,10 @@ void keyboard(unsigned char key, int x, int y) {
 		if(idleTimerFlag) idleTimerFlag = false;
 		break;
 	case 'p': case 'P':  //Change animation timer for pilot mode
-			timerDelay = 40;
-			glutIdleFunc(display);
-			sprintf(timerStr, "%4d", 1000/timerDelay);
-			if (idleTimerFlag) idleTimerFlag = false;
+		timerDelay = 40;
+		glutIdleFunc(display);
+		sprintf(timerStr, "%4d", 1000 / timerDelay);
+		if (idleTimerFlag) idleTimerFlag = false;
 		break;
 	case 't': case 'T':  //Change animation timer for pilot mode
 		timerDelay = 100;
