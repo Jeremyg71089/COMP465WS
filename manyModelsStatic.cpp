@@ -1,14 +1,6 @@
-/*manyModelsStatic.cpp
-465 utility include files:  shader465.hpp, triModel465.hpp
-Shaders:  simpleVertex.glsl and simpleFragment.glsl
-provide flat shading with a fixed light position
-C OpenGL Core 3.3 example that loads "nModels" *.tri model files
-and displays them in at static locations with a static view.
-Demonstrates use of triModel465.hpp functions for loading *.tri models.
-display() updated to comment out unneeded statements like:
-glEnableVertexAttribArray( vPosition[m] );
-These lines are not needed even when the models are moving.
-Mike Barnes10/23/2014*/
+/*Jeremy Galarza, Scott Weagley 10/09/2016
+Warbird Simulation Phase 1
+*/
 
 // define your target operating system: __Windows__  __Linux__  __Mac__
 #define __Windows__ 
@@ -49,7 +41,15 @@ GLuint vPosition[nModels], vColor[nModels], vNormal[nModels];   //vPosition, vCo
 //Model, view, projection matrices and values to create modelMatrix.
 float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f,150.0f,25.0f };   // size of model
 glm::vec3 scale[nModels];       // set in init()
-glm::vec3 translate[nModels] = { glm::vec3(5000.0f,1000.0f,5000.0f), glm::vec3(0, 0, 0), glm::vec3(4000, 0, 0) , glm::vec3(9000, 0, 0), glm::vec3(8100, 0, 0), glm::vec3(7250, 0, 0),glm::vec3(4900,1000,4850) }; //initial positions of models
+glm::vec3 translate[nModels] = { 
+glm::vec3(5000.0f,1000.0f,5000.0f), 
+glm::vec3(0, 0, 0), 
+glm::vec3(4000, 0, 0), 
+glm::vec3(9000, 0, 0), 
+glm::vec3(8100, 0, 0), 
+glm::vec3(7250, 0, 0),
+glm::vec3(4900,1000,4850)
+}; //initial positions of models
 glm::vec3 unumPos = translate[2], duoPos = translate[3]; //Initialize unum and duo positions to original translate from vec3 translate array
 glm::mat4 modelMatrix;          // set in display()
 glm::mat4 viewMatrix;           // set in init()
@@ -60,7 +60,7 @@ glm::mat4 ModelViewProjectionMatrix; // set in display();
 //array of look at matrices in order to make transitioning from easy
 glm::mat4 camera[nCameras] = { 
 glm::lookAt(glm::vec3(0.0f, 10000.0f, 20000.0f),glm::vec3(0), glm::vec3(0.0f, 1.0f, 0.0f)), //Front Camera
-glm::lookAt(glm::vec3(0.0f, 20000.0f, 0.0f),glm::vec3(0),glm::vec3(0.0f, 0.0f, -1.0f)), //Top Camera (Ask Jeremey how up is orientated again
+glm::lookAt(glm::vec3(0.0f, 20000.0f, 0.0f),glm::vec3(0),glm::vec3(0.0f, 0.0f, -1.0f)), //Top Camera 
 glm::lookAt(glm::vec3(5000.0f, 1300.0f, 6000.0f), glm::vec3(5000.0f, 1300.0f, 5000.0f), glm::vec3(0.0f, 1.0f, 0.0f)), //Ship Camera
 glm::lookAt(glm::vec3(4000.0f, 0.0f, -8000.0f), unumPos, glm::vec3(0.0f, 1.0f, 0.0f)), //Unum Camera
 glm::lookAt(glm::vec3(9000.0f, 0.0f, -8000.0f), duoPos, glm::vec3(0.0f, 1.0f, 0.0f)) //Duo Camera
@@ -77,9 +77,6 @@ void init() {
 	shaderProgram = loadShaders(vertexShaderFile, fragmentShaderFile);
 	glUseProgram(shaderProgram);
 
-	//Testing Scott
-	//char tempTesting[60];
-
 	//Generate VAOs and VBOs
 	glGenVertexArrays(nModels, VAO);
 	glGenBuffers(nModels, buffer);
@@ -89,16 +86,8 @@ void init() {
 		modelBR[i] = loadModelBuffer(modelFile[i], nVertices[i], VAO[i], buffer[i], shaderProgram,
 			vPosition[i], vColor[i], vNormal[i], "vPosition", "vColor", "vNormal");
 
-		//Testing Scott
-		//sprintf(tempTesting, "%s Bounding Radius: %f\n", modelFile[i], modelBR[i]);
-		//printf(tempTesting);
-
 		//Set scale for models given bounding radius  
 		scale[i] = glm::vec3(modelSize[i] * 1.0f / modelBR[i]);
-
-		//Testing Scott
-		//sprintf(tempTesting, "%s Scale Vector", modelFile[i]);
-		//showVec3(tempTesting, scale[i]);
 	}
 
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
@@ -138,35 +127,9 @@ void display() {
 		//for the moons to rotate around Duo equation is different than orbiting around the y axis
 		if (m == 4 || m == 5) {
 
-			//Testing Scott
-			//if ((m == 4) && (j < 1)) {
-				//printf("%d:", m);
-				//showMat4("Mat4 Contents", glm::mat4());
-				//showMat4("Translate Value", glm::translate(identity, translate[3]));
-				//showMat4("Scaling Value", glm::scale(glm::mat4(), glm::vec3(scale[3])));
-				//showMat4("Temp Secundus", rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3])));
-			//}
-
-			//Testing Scott
-			//if ((m == 5) && (j < 2)) {
-				//Testing Scott
-				//printf("%d:", m);
-				//showMat4("Mat4 Contents", glm::mat4());
-				//showMat4("Translate Value", glm::translate(identity, translate[3]));
-				//showMat4("Scaling Value", glm::scale(glm::mat4(), glm::vec3(scale[3])));
-				//showMat4("Temp Primus", rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3])));
-			//}
-
 			glm::mat4 temp = rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
 			glm::vec3 temppos = getPosition(temp);
-			//temp = glm::translate(identity, temppos) *  rotation[3];
-			//glm::mat4 trans = glm::translate(identity, translate[3]) * glm::translate(identity, -1.0f * translate[m]);
-
-			//negative translate to origin rotate and translate back to duo
-			//modelMatrix = temp * rotation[3] * trans * glm::scale(glm::mat4(), glm::vec3(scale[m]));
-			modelMatrix = glm::translate(identity, temppos) *  rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
-			//multiplying by the inverse scale fixes the lunar orbit problem for some reason....
-			//j++;
+			modelMatrix = glm::translate(identity, temppos) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		}
 		//Regular equation for rotating around the y-axis
 		else {
@@ -191,6 +154,8 @@ void display() {
 
 	if (timeInterval >= 1000) {
 		sprintf(fpsStr, "%4d", (int)(frameCount / (timeInterval / 1000.0f)));
+		if (idleTimerFlag)
+			sprintf(timerStr,"%s",fpsStr);
 		lastTime = currentTime;
 		frameCount = 0;
 		updateTitle();
@@ -199,25 +164,16 @@ void display() {
 }
 
 void update(void) {
-	//Testing Scott
-	//char tempTesting[60];
 
 	//Create rotation matrices for each model
 	for (int m = 0; m < nModels; m++) {
 		currentRadian[m] += rotateRadian[m];
 		if (currentRadian[m] > 2 * PI) currentRadian[m] = 0.0f;
 		rotation[m] = glm::rotate(identity, currentRadian[m], glm::vec3(0, 1, 0));
-		
-		//Testing Scott
-		//if (n < nModels) {
-		//sprintf(tempTesting, "%s Rotation Matrix", modelFile[m]);
-		//showMat4(tempTesting, rotation[m]);
-		//n++;
-		//}
 	}
 
 	//Using rotations to calculate the position and look at of the camera
-	glm::vec3 temp2 = glm::rotate(unumPos, currentRadian[2], glm::vec3(0, 1, 0)); //(Ask Jeremey 10-8)
+	glm::vec3 temp2 = glm::rotate(unumPos, currentRadian[2], glm::vec3(0, 1, 0)); 
 	glm::vec3 temp = glm::rotate(glm::vec3(4000.0f, 0.0f, -8000.f), currentRadian[2], glm::vec3(0, 1, 0));
 	camera[3] = glm::lookAt(temp, temp2, glm::vec3(0.0f, 1.0f, 0.0f));
 	temp2 = glm::rotate(duoPos, currentRadian[3], glm::vec3(0, 1, 0));
@@ -232,28 +188,6 @@ void intervalTimer(int i) {
 	if (!idleTimerFlag) update();  // fixed interval timer
 }
 
-//void specialKeyEvent(int key, int x, int y)
-//{
-	//if (key = GLUT_KEY_UP && glutGetModifiers() != GLUT_ACTIVE_CTRL)
-		//player->setMove(1);
-	//else if (key = GLUT_KEY_DOWN && glutGetModifiers() != GLUT_ACTIVE_CTRL)
-		//player->setMove(-1);
-	//else if (key = GLUT_KEY_RIGHT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
-		//player->setYaw(1);
-	//else if (key = GLUT_KEY_LEFT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
-		//player->setYaw(-1);
-
-	//if (key = GLUT_KEY_UP && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-		//player->setPitch(1);
-	//else if (key = GLUT_KEY_DOWN && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-		//player->setPitch(-1);
-	//else if (key = GLUT_KEY_RIGHT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-		//player->setRoll(1);
-	//else if (key = GLUT_KEY_LEFT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-		//player->setRoll(-1);
-
-//}
-
 //pressing v adds one to the index 
 //pressing x subtracts from the index
 void keyboard(unsigned char key, int x, int y) {
@@ -263,35 +197,29 @@ void keyboard(unsigned char key, int x, int y) {
 		timerDelay = 5;
 		glutIdleFunc(display);
 		sprintf(timerStr, "%4d", 1000/timerDelay);
-		updateTitle();
 		if(idleTimerFlag) idleTimerFlag = false;
 		break;
 	case 'd': case 'D':  //Change animation timer for debug mode
 		timerDelay = 500;
-		glutIdleFunc(display); //Verify with Jeremy
+		glutIdleFunc(display);
 		sprintf(timerStr, "%4d", 1000 / timerDelay);
-		updateTitle();
 		if(idleTimerFlag) idleTimerFlag = false;
 		break;
 	case 'p': case 'P':  //Change animation timer for pilot mode
-		 //printf("%s   %s\n", timerStr, fpsStr);
 			timerDelay = 40;
 			glutIdleFunc(display);
 			sprintf(timerStr, "%4d", 1000/timerDelay);
-			updateTitle();
 			if (idleTimerFlag) idleTimerFlag = false;
 		break;
 	case 't': case 'T':  //Change animation timer for pilot mode
 		timerDelay = 100;
 		glutIdleFunc(display);
 		sprintf(timerStr, "%4d", 1000 / timerDelay);
-		updateTitle();
 		if (idleTimerFlag) idleTimerFlag = false;
 		break;
 	case 'i': case 'I':  //Change animation timer for trainee mode
 		glutIdleFunc(update);
-		sprintf(timerStr, "%s", fpsStr);
-		updateTitle();
+		idleTimerFlag = true;
 		break;
 	case 'v': case 'V':  //Front view
 		currentCamera++;
@@ -313,6 +241,7 @@ void keyboard(unsigned char key, int x, int y) {
 	updateTitle();
 	glutPostRedisplay();
 }
+
 int main(int argc, char* argv[]) {
 	glutInit(&argc, argv);
 
@@ -350,9 +279,6 @@ int main(int argc, char* argv[]) {
 	//Initialize scene
 	init();
 
-	//Testing Scott
-	//showMat4("Original rotation matrix value", rotation[0]);
-	
 	//Set glut callback functions
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
@@ -366,23 +292,3 @@ int main(int argc, char* argv[]) {
 	printf("done\n");
 	return 0;
 }
-
-
-/*
-This was in init but I moved it here for now
-printf("Shader program variable locations:\n");
-printf("  vPosition = %d  vColor = %d  vNormal = %d MVP = %d\n",
-glGetAttribLocation( shaderProgram, "vPosition" ),
-glGetAttribLocation( shaderProgram, "vColor" ),
-glGetAttribLocation( shaderProgram, "vNormal" ), MVP);
-*/
-
-/*  
-This was in display but I moved it here for now
-The following 3 lines are not needed !
-glEnableVertexAttribArray( vPosition[m] );
-glEnableVertexAttribArray( vColor[m] );
-glEnableVertexAttribArray( vNormal[m] );
-*/
-
-
