@@ -114,6 +114,7 @@ void init() {
 	}
 
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
+	player->setTM(translate[0]);
 	viewMatrix = camera[0];
 
 	//Set render state values
@@ -157,11 +158,13 @@ void display() {
 			modelMatrix = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		}
 
+		player->setTM(translate[0]);
+
 		//Set the view matrix here so cameras can be dynamic
 		viewMatrix = camera[currentCamera];
 
 		//glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr( modelMatrix)); 
-		ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix; //Ask Jeremy
+		ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix; 
 		glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
 		glBindVertexArray(VAO[m]);
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
