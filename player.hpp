@@ -23,15 +23,16 @@ public:
     void setRoll(int i){
         roll = i;
     }
-    void setYaw(int i){
-        yaw = i;
-    }
-
+	void setYaw(int i) {
+		yaw = i;
+	}
 	glm::mat4 getOM() {
 		return OM;
-
 	}
+	void setTM(glm::vec3 t) {
 
+		TM = glm::translate(glm::mat4(), t);
+	}
     void update(){
 		if (pitch != 0)
 		{
