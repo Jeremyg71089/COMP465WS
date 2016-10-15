@@ -71,6 +71,27 @@ char viewStr[6] = "Front";
 int warbirdMissleCount = 0, unumMissleCount = 0, secundusMissleCount = 0;
 char titleStr[100], fpsStr[5] = { '0' }, timerStr[5] = { '0' };
 
+void specialKeyEvent(int key, int x, int y)
+{
+if (key = GLUT_KEY_UP && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+	player->setMove(1);
+else if (key = GLUT_KEY_DOWN && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+	player->setMove(-1);
+else if (key = GLUT_KEY_RIGHT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+	player->setYaw(1);
+else if (key = GLUT_KEY_LEFT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+	player->setYaw(-1);
+
+if (key = GLUT_KEY_UP && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+	player->setPitch(1);
+else if (key = GLUT_KEY_DOWN && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+	player->setPitch(-1);
+else if (key = GLUT_KEY_RIGHT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+	player->setRoll(1);
+else if (key = GLUT_KEY_LEFT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+	player->setRoll(-1);
+}
+
 //Load the shader programs, vertex data from model files, create the solids, set initial view
 void init() {
 	//Load the shader programs
@@ -281,6 +302,7 @@ int main(int argc, char* argv[]) {
 	glutDisplayFunc(display);
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(specialKeyEvent);
 
 	
 	//I still need to see exactly what we need to update here
@@ -291,25 +313,5 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-//void specialKeyEvent(int key, int x, int y)
-//{
-//if (key = GLUT_KEY_UP && glutGetModifiers() != GLUT_ACTIVE_CTRL)
-//player->setMove(1);
-//else if (key = GLUT_KEY_DOWN && glutGetModifiers() != GLUT_ACTIVE_CTRL)
-//player->setMove(-1);
-//else if (key = GLUT_KEY_RIGHT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
-//player->setYaw(1);
-//else if (key = GLUT_KEY_LEFT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
-//player->setYaw(-1);
 
-//if (key = GLUT_KEY_UP && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-//player->setPitch(1);
-//else if (key = GLUT_KEY_DOWN && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-//player->setPitch(-1);
-//else if (key = GLUT_KEY_RIGHT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-//player->setRoll(1);
-//else if (key = GLUT_KEY_LEFT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-//player->setRoll(-1);
-
-//}
 
