@@ -7,6 +7,7 @@ Warbird Simulation Phase 1
 #include "../includes465/include465.hpp"
 #include "Shape3D.hpp"
 #include "glm/gtx/rotate_vector.hpp"
+#include "player.hpp"
 //#include "MovableObj3D";
 
 int n = 0, j  = 0;
