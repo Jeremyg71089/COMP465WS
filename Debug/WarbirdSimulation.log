@@ -15,5 +15,60 @@
   GLM: GLM_GTC_type_ptr extension included
   GLM: GLM_GTX_transform extension included
   GLM: GLM_GTX_rotate_vector extension included
-  WarbirdSimulation.vcxproj -> C:\Users\Jeremy\Documents\Comp465Projects\COMP465WS\Debug\WarbirdSimulation.exe
-  WarbirdSimulation.vcxproj -> C:\Users\Jeremy\Documents\Comp465Projects\COMP465WS\Debug\WarbirdSimulation.pdb (Partial PDB)
+c:\users\claws\documents\github\includes465\glmutils465.hpp(30): error C2084: function 'void showVec3(char *,const glm::vec3 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(30): note: see previous definition of 'showVec3'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(35): error C2084: function 'void showVec4(char *,const glm::vec4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(35): note: see previous definition of 'showVec4'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(40): error C2084: function 'void showMat4(char *,const glm::mat4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(40): note: see previous definition of 'showMat4'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(50): error C2084: function 'glm::vec3 getRight(const glm::mat4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(50): note: see previous definition of 'getRight'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(54): error C2084: function 'glm::vec3 getLeft(const glm::mat4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(54): note: see previous definition of 'getLeft'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(58): error C2084: function 'glm::vec3 getUp(const glm::mat4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(58): note: see previous definition of 'getUp'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(62): error C2084: function 'glm::vec3 getDown(const glm::mat4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(62): note: see previous definition of 'getDown'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(66): error C2084: function 'glm::vec3 getOut(const glm::mat4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(66): note: see previous definition of 'getOut'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(70): error C2084: function 'glm::vec3 getIn(const glm::mat4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(70): note: see previous definition of 'getIn'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(73): error C2084: function 'glm::vec3 getPosition(const glm::mat4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(73): note: see previous definition of 'getPosition'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(77): error C2084: function 'float distance(glm::vec3,glm::vec3)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(77): note: see previous definition of 'distance'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(83): error C2084: function 'bool colinear(glm::vec3,glm::vec3,double)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(83): note: see previous definition of 'colinear'
+c:\users\claws\documents\github\includes465\glmutils465.hpp(96): error C2084: function 'glm::vec3 unitNormal(glm::vec4 &,glm::vec4 &,glm::vec4 &)' already has a body
+  c:\users\claws\documents\github\includes465\glmutils465.hpp(95): note: see previous definition of 'unitNormal'
+c:\users\claws\documents\github\includes465\shader465.hpp(12): error C2084: function 'GLchar *readShaderSource(const char *)' already has a body
+  c:\users\claws\documents\github\includes465\shader465.hpp(12): note: see previous definition of 'readShaderSource'
+c:\users\claws\documents\github\includes465\shader465.hpp(34): error C2084: function 'void checkCreate(GLint,const char *)' already has a body
+  c:\users\claws\documents\github\includes465\shader465.hpp(34): note: see previous definition of 'checkCreate'
+c:\users\claws\documents\github\includes465\shader465.hpp(40): error C2084: function 'void checkShaderStatus(GLint,GLint,const char *)' already has a body
+  c:\users\claws\documents\github\includes465\shader465.hpp(40): note: see previous definition of 'checkShaderStatus'
+c:\users\claws\documents\github\includes465\shader465.hpp(52): error C2084: function 'void checkProgramStatus(GLint,GLint,const char *)' already has a body
+  c:\users\claws\documents\github\includes465\shader465.hpp(52): note: see previous definition of 'checkProgramStatus'
+c:\users\claws\documents\github\includes465\shader465.hpp(65): error C2084: function 'GLuint loadShaders(const GLchar *,const GLchar *)' already has a body
+  c:\users\claws\documents\github\includes465\shader465.hpp(65): note: see previous definition of 'loadShaders'
+c:\users\claws\documents\github\includes465\shader465.hpp(74): error C2440: 'initializing': cannot convert from 'GLchar *(__cdecl *)(const char *)' to 'GLchar *'
+  c:\users\claws\documents\github\includes465\shader465.hpp(74): note: There is no context in which this conversion is possible
+c:\users\claws\documents\github\includes465\shader465.hpp(75): error C2440: 'initializing': cannot convert from 'GLchar *(__cdecl *)(const char *)' to 'GLchar *'
+  c:\users\claws\documents\github\includes465\shader465.hpp(75): note: There is no context in which this conversion is possible
+c:\users\claws\documents\github\includes465\trimodel465.hpp(39): error C2084: function 'float loadTriModel(char *,int,glm::vec4 [],glm::vec4 [],glm::vec3 [])' already has a body
+  c:\users\claws\documents\github\includes465\trimodel465.hpp(39): note: see previous definition of 'loadTriModel'
+c:\users\claws\documents\github\includes465\trimodel465.hpp(123): error C2084: function 'float loadModelBuffer(char [],GLuint,GLuint,GLuint,GLuint,GLuint,GLuint,GLuint,char *,char *,char *)' already has a body
+  c:\users\claws\documents\github\includes465\trimodel465.hpp(119): note: see previous definition of 'loadModelBuffer'
+c:\users\claws\documents\github\includes465\trimodel465.hpp(133): error C2568: '=': unable to resolve function overload
+  c:\users\claws\documents\github\includes465\trimodel465.hpp(133): note: could be 'float loadTriModel(char *,int,glm::vec4 [],glm::vec4 [],glm::vec3 [])'
+c:\users\claws\documents\github\includes465\include465.hpp(69): error C2370: 'PI': redefinition; different storage class
+  c:\users\claws\documents\github\includes465\include465.hpp(69): note: see declaration of 'PI'
+c:\users\claws\documents\github\comp465ws\player.hpp(9): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\claws\documents\github\comp465ws\player.hpp(49): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
+c:\users\claws\documents\github\comp465ws\player.hpp(49): error C2088: '*': illegal for struct
+c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(99): error C2568: '=': unable to resolve function overload
+  c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(99): note: could be 'GLuint loadShaders(const GLchar *,const GLchar *)'
+c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(109): error C2568: '=': unable to resolve function overload
+  c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(109): note: could be 'float loadModelBuffer(char [],GLuint,GLuint,GLuint,GLuint,GLuint,GLuint,GLuint,char *,char *,char *)'
+c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(155): error C2440: 'initializing': cannot convert from 'glm::vec3 (__cdecl *)(const glm::mat4 &)' to 'glm::tvec3<float,0>'
+  c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(155): note: No constructor could take the source type, or constructor overload resolution was ambiguous

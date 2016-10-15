@@ -30,7 +30,6 @@ int ace = 5, pilot = 40, trainee = 100, debug = 500; //5 ms is 200 U/S, 40 is
 int timerDelay = 5, frameCount = 0;
 double currentTime, lastTime, timeInterval;
 bool idleTimerFlag = true;  //Interval or idle timer ?
-
 glm::mat4 identity(1.0f);
 glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() };
 float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f }; //rotation rates for the orbiting
@@ -57,7 +56,7 @@ glm::mat4 modelMatrix;          // set in display()
 glm::mat4 viewMatrix;           // set in init()
 glm::mat4 projectionMatrix;     // set in reshape()
 glm::mat4 ModelViewProjectionMatrix; // set in display();
-
+glm::vec3 curShipPos = translate[0]; //Initialize ship position to the ship model's translation vector
 
 //array of look at matrices in order to make transitioning from easy
 glm::mat4 camera[nCameras] = { 
@@ -147,8 +146,11 @@ void display() {
 
 	//Update model matrix
 	for (int m = 0; m < nModels; m++) {
-		//for the moons to rotate around Duo equation is different than orbiting around the y axis
-		if (m == 4 || m == 5) {
+		if (m == 0) {
+			player->setTM(curShipPos);
+			modelMatrix = player->getOM(); //Get player's OM matrix and update modelMatrix
+			curShipPos = getPosition(modelMatrix);
+		} else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
 			glm::mat4 temp = rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
 			glm::vec3 temppos = getPosition(temp);
 			modelMatrix = glm::translate(identity, temppos) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
@@ -157,9 +159,7 @@ void display() {
 		else {
 			modelMatrix = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		}
-
-		player->setTM(translate[0]);
-
+		
 		//Set the view matrix here so cameras can be dynamic
 		viewMatrix = camera[currentCamera];
 
