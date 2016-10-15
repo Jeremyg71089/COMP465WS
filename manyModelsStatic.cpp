@@ -290,3 +290,26 @@ int main(int argc, char* argv[]) {
 	printf("done\n");
 	return 0;
 }
+
+//void specialKeyEvent(int key, int x, int y)
+//{
+//if (key = GLUT_KEY_UP && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+//player->setMove(1);
+//else if (key = GLUT_KEY_DOWN && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+//player->setMove(-1);
+//else if (key = GLUT_KEY_RIGHT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+//player->setYaw(1);
+//else if (key = GLUT_KEY_LEFT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+//player->setYaw(-1);
+
+//if (key = GLUT_KEY_UP && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+//player->setPitch(1);
+//else if (key = GLUT_KEY_DOWN && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+//player->setPitch(-1);
+//else if (key = GLUT_KEY_RIGHT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+//player->setRoll(1);
+//else if (key = GLUT_KEY_LEFT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+//player->setRoll(-1);
+
+//}
+
