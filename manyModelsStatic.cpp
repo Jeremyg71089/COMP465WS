@@ -12,6 +12,7 @@ Warbird Simulation Phase 1
 
 int n = 0, j  = 0;
 const int X = 0, Y = 1, Z = 2, START = 0, STOP = 1;
+Player *player;
 
 //Constants for models:  file names, vertex count, model display size
 const int nModels = 7, nCameras = 5; //Number of models in this scene & Number of cameras
