@@ -1,5 +1,8 @@
-#define __Windows__
-#include "../includes465/include465.hpp"
+
+# ifndef __INCLUDES465__
+# include "../includes465/include465.hpp"
+# define __INCLUDES465__
+# endif
 
 class Player{
 private:
@@ -14,6 +17,12 @@ private:
 	glm::vec3 axis;
 
 public:
+
+	Player(glm::vec3 t) {
+
+		TM = glm::translate(glm::mat4(),t);
+
+	}
 	void setMove(int i){
         step = i;
     }
@@ -31,7 +40,7 @@ public:
 	}
 	void setTM(glm::vec3 t) {
 
-		TM = glm::translate(glm::mat4(), t);
+//		TM = glm::translate(glm::mat4(), t);
 	}
     void update(){
 		if (pitch != 0)
@@ -46,7 +55,9 @@ public:
 
 			RM = glm::rotate(RM, pitch*radians, glm::vec3(0, 0, 1));
 		}
-		forward = getIn(OM) *glm::vec3(step) * glm:: vec3( stepDistance);
+		glm::vec3 stepV = glm::vec3(step);
+		
+		forward = getIn(OM);
 		axis = glm::vec3(pitch, yaw, roll);
 		TM = glm::translate(TM, forward);
 		OM = TM * RM;

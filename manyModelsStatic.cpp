@@ -113,7 +113,7 @@ void init() {
 	}
 
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
-	player->setTM(translate[0]);
+	player = new Player(curShipPos);
 	viewMatrix = camera[0];
 
 	//Set render state values
