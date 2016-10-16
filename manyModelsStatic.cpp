@@ -66,6 +66,7 @@ glm::lookAt(glm::vec3(4000.0f, 0.0f, -8000.0f), unumPos, glm::vec3(0.0f, 1.0f, 0
 glm::lookAt(glm::vec3(9000.0f, 0.0f, -8000.0f), duoPos, glm::vec3(0.0f, 1.0f, 0.0f)) //Duo Camera
 };
 
+glm::mat4 lastOM;
 //Window title string variables
 char viewStr[6] = "Front";
 int warbirdMissleCount = 0, unumMissleCount = 0, secundusMissleCount = 0;
@@ -73,22 +74,22 @@ char titleStr[100], fpsStr[5] = { '0' }, timerStr[5] = { '0' };
 
 void specialKeyEvent(int key, int x, int y)
 {
-if (key = GLUT_KEY_UP && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+if (key == GLUT_KEY_UP && glutGetModifiers() != GLUT_ACTIVE_CTRL)
 	player->setMove(1);
-else if (key = GLUT_KEY_DOWN && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+else if (key == GLUT_KEY_DOWN && glutGetModifiers() != GLUT_ACTIVE_CTRL)
 	player->setMove(-1);
-else if (key = GLUT_KEY_RIGHT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+else if (key == GLUT_KEY_RIGHT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
 	player->setYaw(1);
-else if (key = GLUT_KEY_LEFT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
+else if (key == GLUT_KEY_LEFT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
 	player->setYaw(-1);
 
-if (key = GLUT_KEY_UP && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+if (key == GLUT_KEY_UP && glutGetModifiers() == GLUT_ACTIVE_CTRL)
 	player->setPitch(1);
-else if (key = GLUT_KEY_DOWN && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+else if (key == GLUT_KEY_DOWN && glutGetModifiers() == GLUT_ACTIVE_CTRL)
 	player->setPitch(-1);
-else if (key = GLUT_KEY_RIGHT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+else if (key == GLUT_KEY_RIGHT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
 	player->setRoll(1);
-else if (key = GLUT_KEY_LEFT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+else if (key == GLUT_KEY_LEFT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
 	player->setRoll(-1);
 }
 
@@ -112,9 +113,9 @@ void init() {
 	}
 
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
-	player = new Player(curShipPos);
+	player = new Player(curShipPos, scale[0]);
 	viewMatrix = camera[0];
-
+	lastOM = player->getOM();
 	//Set render state values
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
@@ -146,10 +147,9 @@ void display() {
 	//Update model matrix
 	for (int m = 0; m < nModels; m++) {
 		if (m == 0) {
-			player->setTM(curShipPos);
-			modelMatrix = player->getOM(); //Get player's OM matrix and update modelMatrix
-			curShipPos = getPosition(modelMatrix);
-		} else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
+			modelMatrix = player->getOM(); //Get player's OM matrix and update
+		} 
+		else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
 			glm::mat4 temp = rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
 			glm::vec3 temppos = getPosition(temp);
 			modelMatrix = glm::translate(identity, temppos) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
@@ -187,14 +187,17 @@ void display() {
 }
 
 void update(void) {
-
+	player->update();
 	//Create rotation matrices for each model
 	for (int m = 0; m < nModels; m++) {
 		currentRadian[m] += rotateRadian[m];
 		if (currentRadian[m] > 2 * PI) currentRadian[m] = 0.0f;
 		rotation[m] = glm::rotate(identity, currentRadian[m], glm::vec3(0, 1, 0));
 	}
-
+	//matrix subtraction: find the difference between the last orientation matrix and the current one of warship
+	//then take that difference and multiply it with the camera matrix so the camera follows it 
+	camera[2] = camera[2] * (lastOM * glm::inverse(player->getOM()));
+	lastOM = player->getOM();
 	//Using rotations to calculate the position and look at of the camera
 	glm::vec3 temp2 = glm::rotate(unumPos, currentRadian[2], glm::vec3(0, 1, 0)); 
 	glm::vec3 temp = glm::rotate(glm::vec3(4000.0f, 0.0f, -8000.f), currentRadian[2], glm::vec3(0, 1, 0));

@@ -1,23 +1,2 @@
-﻿  manyModelsStatic.cpp
-  GLM: version 0.9.7.6
-  GLM: Windows platform detected
-  GLM: Visual C++ compiler detected
-  GLM: 32 bits model
-  GLM: Platform independent code
-  GLM: C++0x
-  GLM: Language extensions enabled
-  GLM: Swizzling operators disabled, #define GLM_SWIZZLE to enable swizzle operators
-  GLM: .length() returns glm::length_t, a typedef of int following the GLSL specification
-  GLM: Core library included
-  GLM: GLM_GTC_constants extension included
-  GLM: GLM_GTC_matrix_transform extension included
-  GLM: GLM_GTC_quaternion extension included
-  GLM: GLM_GTC_type_ptr extension included
-  GLM: GLM_GTX_transform extension included
-  GLM: GLM_GTX_rotate_vector extension included
-c:\users\claws\documents\github\comp465ws\player.hpp(12): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\claws\documents\github\comp465ws\player.hpp(58): warning C4244: 'argument': conversion from 'int' to 'const float', possible loss of data
-c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(229): warning C4553: '==': operator has no effect; did you intend '='?
-c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(232): warning C4553: '==': operator has no effect; did you intend '='?
-  WarbirdSimulation.vcxproj -> C:\Users\claws\Documents\GitHub\COMP465WS\Debug\WarbirdSimulation.exe
-  WarbirdSimulation.vcxproj -> C:\Users\claws\Documents\GitHub\COMP465WS\Debug\WarbirdSimulation.pdb (Partial PDB)
+﻿  WarbirdSimulation.vcxproj -> C:\Users\Jeremy\Documents\Comp465Projects\COMP465WS\Debug\WarbirdSimulation.exe
+  WarbirdSimulation.vcxproj -> C:\Users\Jeremy\Documents\Comp465Projects\COMP465WS\Debug\WarbirdSimulation.pdb (Partial PDB)
