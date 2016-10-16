@@ -24,12 +24,11 @@ char * vertexShaderFile = "simpleVertex.glsl";
 char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint shaderProgram, VAO[nModels], buffer[nModels]; //Vertex Array Objects & Vertex Buffer Objects
 
-//Fixed timer interval settings (TQ Time Quantum)
-int ace = 5, pilot = 40, trainee = 100, debug = 500; //5 ms is 200 U/S, 40 is 
-
 int timerDelay = 5, frameCount = 0;
+int timerDelayCounter = 0; //Counter for timer delay speed
 double currentTime, lastTime, timeInterval;
 bool idleTimerFlag = true;  //Interval or idle timer ?
+bool gravity = false; //Boolean for Gravity
 glm::mat4 identity(1.0f);
 glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() };
 float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f }; //rotation rates for the orbiting
@@ -215,36 +214,57 @@ void intervalTimer(int i) {
 //pressing v adds one to the index 
 //pressing x subtracts from the index
 void keyboard(unsigned char key, int x, int y) {
+	if (timerDelayCounter == 3) {
+		timerDelayCounter = 0;
+	}
+
 	switch (key) {
 	case 033: case 'q':  case 'Q': exit(EXIT_SUCCESS); break;
-	case 'a': case 'A':  //Change animation timer for ace mode
-		timerDelay = 5;
-		glutIdleFunc(display);
-		sprintf(timerStr, "%4d", 1000 / timerDelay);
-		if(idleTimerFlag) idleTimerFlag = false;
+	case 'f': case 'F': //Launch ship missile
+		//Put code in here to fire missiles
 		break;
-	case 'd': case 'D':  //Change animation timer for debug mode
-		timerDelay = 500;
-		glutIdleFunc(display);
-		sprintf(timerStr, "%4d", 1000 / timerDelay);
-		if(idleTimerFlag) idleTimerFlag = false;
+		
+	case 'g': case 'G': //Toggle gravity
+		if (gravity == true) {
+			gravity == false;
+		}
+		else {
+			gravity == true;
+		}
 		break;
-	case 'p': case 'P':  //Change animation timer for pilot mode
-		timerDelay = 40;
-		glutIdleFunc(display);
-		sprintf(timerStr, "%4d", 1000 / timerDelay);
-		if (idleTimerFlag) idleTimerFlag = false;
+
+	case 's': case 'S': //For next ship speed % nSpeeds
+		//Put code in here for ship speed
 		break;
+
 	case 't': case 'T':  //Change animation timer for pilot mode
-		timerDelay = 100;
+		switch (timerDelayCounter) {
+		case 0: //Ace Mode
+			timerDelay = 5;
+			sprintf(timerStr, "%4d", 1000 / timerDelay);
+			break;
+		case 1: //Pilot Mode
+			timerDelay = 40;
+			sprintf(timerStr, "%4d", 1000 / timerDelay);
+			break;
+		case 2: //Trainee Mode
+			timerDelay = 100;
+			sprintf(timerStr, "%4d", 1000 / timerDelay);
+			break;
+		case 3: //Debug Mode
+			timerDelay = 500;			
+			sprintf(timerStr, "%4d", 1000 / timerDelay);			
+			break;
+		}
 		glutIdleFunc(display);
-		sprintf(timerStr, "%4d", 1000 / timerDelay);
+		timerDelayCounter++;
 		if (idleTimerFlag) idleTimerFlag = false;
 		break;
-	case 'i': case 'I':  //Change animation timer for trainee mode
-		glutIdleFunc(update);
-		idleTimerFlag = true;
+
+	case 'w': case 'W': //Warp ship % nPlanets
+		//Put code here to warp planets
 		break;
+
 	case 'v': case 'V':  //Front view
 		currentCamera++;
 		break;
