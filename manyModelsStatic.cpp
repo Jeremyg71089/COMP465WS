@@ -217,7 +217,7 @@ void intervalTimer(int i) {
 //pressing v adds one to the index 
 //pressing x subtracts from the index
 void keyboard(unsigned char key, int x, int y) {
-	if (timerDelayCounter == 3) {
+	if (timerDelayCounter == 4) {
 		timerDelayCounter = 0;
 	}
 
