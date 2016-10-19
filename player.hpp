@@ -42,8 +42,9 @@ public:
 	glm::mat4 getOM() {
 		return OM;
 	}
-	void setTM(glm::vec3 t) {
+	void warp(glm::vec3 t) {
 		TM = glm::translate(glm::mat4(), t);
+		
 	}
 	glm::vec3 getPos() {
 		return position;

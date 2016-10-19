@@ -23,7 +23,7 @@ const int nVertices[nModels] = { 996 * 3 , 264 * 3,264 * 3,264 * 3,264 * 3,264 *
 char * vertexShaderFile = "simpleVertex.glsl";
 char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint shaderProgram, VAO[nModels], buffer[nModels]; //Vertex Array Objects & Vertex Buffer Objects
-
+int nextWarp = 3;
 int timerDelay = 5, frameCount = 0;
 int timerDelayCounter = 0; //Counter for timer delay speed
 double currentTime, lastTime, timeInterval;
@@ -33,7 +33,7 @@ glm::mat4 identity(1.0f);
 glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() };
 float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f }; //rotation rates for the orbiting
 float currentRadian[nModels] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f }; //the current radians meant for rotating
-
+glm::vec3 currPCL[2];
 //Shader handles, matrices, etc
 GLuint MVP;  //Model View Projection matrix's handle
 GLuint vPosition[nModels], vColor[nModels], vNormal[nModels];   //vPosition, vColor, vNormal handles for models
@@ -84,13 +84,14 @@ else if (key == GLUT_KEY_LEFT && glutGetModifiers() != GLUT_ACTIVE_CTRL)
 	player->setYaw(-1);
 
 if (key == GLUT_KEY_UP && glutGetModifiers() == GLUT_ACTIVE_CTRL)
-	player->setPitch(1);
-else if (key == GLUT_KEY_DOWN && glutGetModifiers() == GLUT_ACTIVE_CTRL)
 	player->setPitch(-1);
+else if (key == GLUT_KEY_DOWN && glutGetModifiers() == GLUT_ACTIVE_CTRL)
+	player->setPitch(1);
 else if (key == GLUT_KEY_RIGHT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
 	player->setRoll(1);
 else if (key == GLUT_KEY_LEFT && glutGetModifiers() == GLUT_ACTIVE_CTRL)
 	player->setRoll(-1);
+
 }
 
 //Load the shader programs, vertex data from model files, create the solids, set initial view
@@ -199,9 +200,11 @@ void update(void) {
 	camera[2] = camera[2] * (lastOM * glm::inverse(player->getOM()));
 	lastOM = player->getOM();
 	//Using rotations to calculate the position and look at of the camera
+	currPCL[0] = glm::rotate(glm::vec3(4000.0f, 0.0f, -8000.f), currentRadian[2], glm::vec3(0, 1, 0));
 	glm::vec3 temp2 = glm::rotate(unumPos, currentRadian[2], glm::vec3(0, 1, 0)); 
 	glm::vec3 temp = glm::rotate(glm::vec3(4000.0f, 0.0f, -8000.f), currentRadian[2], glm::vec3(0, 1, 0));
 	camera[3] = glm::lookAt(temp, temp2, glm::vec3(0.0f, 1.0f, 0.0f));
+	currPCL[1] = glm::rotate(glm::vec3(9000.0f, 0.0f, -8000.0f), currentRadian[3], glm::vec3(0, 1, 0));
 	temp2 = glm::rotate(duoPos, currentRadian[3], glm::vec3(0, 1, 0));
 	temp = glm::rotate(glm::vec3(9000.0f, 0.0f, -8000.0f), currentRadian[3], glm::vec3(0, 1, 0));
 	camera[4] = glm::lookAt(temp, temp2, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -266,6 +269,12 @@ void keyboard(unsigned char key, int x, int y) {
 
 	case 'w': case 'W': //Warp ship % nPlanets
 		//Put code here to warp planets
+		player->warp(currPCL[nextWarp - 3]);
+		player->setYaw(-1.0f *(currentRadian[nextWarp]/0.02f));
+		nextWarp++;
+		if (nextWarp > 4) {
+			nextWarp = 3;
+		}
 		break;
 
 	case 'v': case 'V':  //Front view
