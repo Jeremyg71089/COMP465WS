@@ -10,7 +10,7 @@ private:
     int step = 0;
 	int stepDistance = 20;
 	int pitch = 0, roll = 0 , yaw = 0;
-    float radians = 0.02;
+    float radians = 0.02f;
 	glm::vec3 forward = glm::vec3(0.0f);
     glm::mat4 RM = glm::mat4();
 	glm::mat4 OM = glm::mat4();
@@ -53,7 +53,10 @@ public:
 
 		return RM;
 	}
-	
+	void setRM(glm::mat4 r) {
+
+		RM = r;
+	}
     void update(){
 		if (pitch != 0){
 			RM = glm::rotate(RM,pitch*radians,glm::vec3(1,0,0));

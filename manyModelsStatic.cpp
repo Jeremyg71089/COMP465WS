@@ -232,10 +232,10 @@ void keyboard(unsigned char key, int x, int y) {
 		
 	case 'g': case 'G': //Toggle gravity
 		if (gravity == true) {
-			gravity == false;
+			gravity = false;
 		}
 		else {
-			gravity == true;
+			gravity = true;
 		}
 		break;
 
@@ -270,7 +270,7 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'w': case 'W': //Warp ship % nPlanets
 		//Put code here to warp planets
 		player->warp(currPCL[nextWarp - 3]);
-		player->setYaw(-1.0f *(currentRadian[nextWarp]/0.02f));
+		player->setRM(camera[nextWarp]);
 		nextWarp++;
 		if (nextWarp > 4) {
 			nextWarp = 3;

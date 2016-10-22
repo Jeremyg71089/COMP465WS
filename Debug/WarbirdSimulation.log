@@ -15,9 +15,5 @@
   GLM: GLM_GTC_type_ptr extension included
   GLM: GLM_GTX_transform extension included
   GLM: GLM_GTX_rotate_vector extension included
-c:\users\jeremy\documents\comp465projects\comp465ws\player.hpp(13): warning C4305: 'initializing': truncation from 'double' to 'float'
-c:\users\jeremy\documents\comp465projects\comp465ws\manymodelsstatic.cpp(235): warning C4553: '==': operator has no effect; did you intend '='?
-c:\users\jeremy\documents\comp465projects\comp465ws\manymodelsstatic.cpp(238): warning C4553: '==': operator has no effect; did you intend '='?
-c:\users\jeremy\documents\comp465projects\comp465ws\manymodelsstatic.cpp(273): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
   WarbirdSimulation.vcxproj -> C:\Users\Jeremy\Documents\Comp465Projects\COMP465WS\Debug\WarbirdSimulation.exe
   WarbirdSimulation.vcxproj -> C:\Users\Jeremy\Documents\Comp465Projects\COMP465WS\Debug\WarbirdSimulation.pdb (Partial PDB)
