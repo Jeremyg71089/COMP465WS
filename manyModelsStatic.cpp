@@ -8,12 +8,16 @@ Warbird Simulation Phase 1
 #include "Shape3D.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 #include "player.hpp"
-//#include "MovableObj3D";
+
 
 int n = 0, j  = 0;
 const int X = 0, Y = 1, Z = 2, START = 0, STOP = 1;
 Player *player;
-
+glm::vec3 L;
+glm::vec3 T;
+glm::vec3 axis;
+float angle;
+glm::vec3 tempVec;
 //Constants for models:  file names, vertex count, model display size
 const int nModels = 7, nCameras = 5; //Number of models in this scene & Number of cameras
 int currentCamera = 0; //Current camera
@@ -23,7 +27,7 @@ const int nVertices[nModels] = { 996 * 3 , 264 * 3,264 * 3,264 * 3,264 * 3,264 *
 char * vertexShaderFile = "simpleVertex.glsl";
 char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint shaderProgram, VAO[nModels], buffer[nModels]; //Vertex Array Objects & Vertex Buffer Objects
-int nextWarp = 3;
+int nextWarp = 2;
 int timerDelay = 5, frameCount = 0;
 int timerDelayCounter = 0; //Counter for timer delay speed
 double currentTime, lastTime, timeInterval;
@@ -51,7 +55,7 @@ glm::vec3(7250, 0, 0),
 glm::vec3(4900,1000,4850)
 }; //initial positions of models
 glm::vec3 unumPos = translate[2], duoPos = translate[3]; //Initialize unum and duo positions to original translate from vec3 translate array
-glm::mat4 modelMatrix;          // set in display()
+//glm::mat4 modelMatrix;          // set in display()
 glm::mat4 viewMatrix;           // set in init()
 glm::mat4 projectionMatrix;     // set in reshape()
 glm::mat4 ModelViewProjectionMatrix; // set in display();
@@ -66,7 +70,10 @@ glm::lookAt(glm::vec3(4000.0f, 0.0f, -8000.0f), unumPos, glm::vec3(0.0f, 1.0f, 0
 glm::lookAt(glm::vec3(9000.0f, 0.0f, -8000.0f), duoPos, glm::vec3(0.0f, 1.0f, 0.0f)) //Duo Camera
 };
 
-glm::mat4 lastOM;
+glm::mat4 modelMatrix[nModels] = {identity, identity,identity,identity,identity,identity,identity};
+glm::mat4 lastOMShip;
+glm::mat4 lastOMDuo;
+glm::mat4 lastOMUnum;
 //Window title string variables
 char viewStr[6] = "Front";
 int warbirdMissleCount = 0, unumMissleCount = 0, secundusMissleCount = 0;
@@ -116,11 +123,13 @@ void init() {
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
 	player = new Player(curShipPos, scale[0]);
 	viewMatrix = camera[0];
-	lastOM = player->getOM();
+	lastOMShip = player->getOM();
+	lastOMUnum = rotation[2] * glm::translate(glm::mat4(), translate[2]) * glm::scale(glm::mat4(), glm::vec3(scale[2]));
+	lastOMDuo= rotation[3] * glm::translate(glm::mat4(), translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
 	//Set render state values
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
-
+	tempVec = getPosition(camera[4]);
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
 }
 
@@ -147,24 +156,12 @@ void display() {
 
 	//Update model matrix
 	for (int m = 0; m < nModels; m++) {
-		if (m == 0) {
-			modelMatrix = player->getOM(); //Get player's OM matrix and update
-		} 
-		else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
-			glm::mat4 temp = rotation[3] * glm::translate(identity, translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[3]));
-			glm::vec3 temppos = getPosition(temp);
-			modelMatrix = glm::translate(identity, temppos) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
-		}
-		//Regular equation for rotating around the y-axis
-		else {
-			modelMatrix = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
-		}
 		
 		//Set the view matrix here so cameras can be dynamic
 		viewMatrix = camera[currentCamera];
 
 		//glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr( modelMatrix)); 
-		ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix; 
+		ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix[m]; 
 		glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
 		glBindVertexArray(VAO[m]);
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
@@ -188,26 +185,34 @@ void display() {
 }
 
 void update(void) {
-	player->update();
+	
 	//Create rotation matrices for each model
 	for (int m = 0; m < nModels; m++) {
-		currentRadian[m] += rotateRadian[m];
-		if (currentRadian[m] > 2 * PI) currentRadian[m] = 0.0f;
-		rotation[m] = glm::rotate(identity, currentRadian[m], glm::vec3(0, 1, 0));
+		rotation[m] = glm::rotate(rotation[m], rotateRadian[m], glm::vec3(0, 1, 0));
+		if (m == 0) {
+			modelMatrix[m] = player->getOM(); //Get player's OM matrix and update
+		}
+		else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
+			
+			glm::vec3 temp = getPosition(modelMatrix[3]);
+			modelMatrix[m] = glm::translate(identity, temp) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
+		}
+		//Regular equation for rotating around the y-axis
+		else {
+			modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
+		}
+
 	}
 	//matrix subtraction: find the difference between the last orientation matrix and the current one of warship
 	//then take that difference and multiply it with the camera matrix so the camera follows it 
-	camera[2] = camera[2] * (lastOM * glm::inverse(player->getOM()));
-	lastOM = player->getOM();
+	camera[2] = camera[2] * (lastOMShip * glm::inverse(player->getOM()));
+	lastOMShip = player->getOM();
 	//Using rotations to calculate the position and look at of the camera
-	currPCL[0] = glm::rotate(glm::vec3(4000.0f, 0.0f, -8000.f), currentRadian[2], glm::vec3(0, 1, 0));
-	glm::vec3 temp2 = glm::rotate(unumPos, currentRadian[2], glm::vec3(0, 1, 0)); 
-	glm::vec3 temp = glm::rotate(glm::vec3(4000.0f, 0.0f, -8000.f), currentRadian[2], glm::vec3(0, 1, 0));
-	camera[3] = glm::lookAt(temp, temp2, glm::vec3(0.0f, 1.0f, 0.0f));
-	currPCL[1] = glm::rotate(glm::vec3(9000.0f, 0.0f, -8000.0f), currentRadian[3], glm::vec3(0, 1, 0));
-	temp2 = glm::rotate(duoPos, currentRadian[3], glm::vec3(0, 1, 0));
-	temp = glm::rotate(glm::vec3(9000.0f, 0.0f, -8000.0f), currentRadian[3], glm::vec3(0, 1, 0));
-	camera[4] = glm::lookAt(temp, temp2, glm::vec3(0.0f, 1.0f, 0.0f));
+	camera[3] = camera[3] * (lastOMUnum * glm::inverse(modelMatrix[2]));
+	lastOMUnum = modelMatrix[2];
+	camera[4] = camera[4] * (lastOMDuo * glm::inverse(modelMatrix[3]));
+	lastOMDuo = modelMatrix[3];
+	player->update();
 	glutPostRedisplay();
 }
 
@@ -269,11 +274,18 @@ void keyboard(unsigned char key, int x, int y) {
 
 	case 'w': case 'W': //Warp ship % nPlanets
 		//Put code here to warp planets
-		player->warp(currPCL[nextWarp - 3]);
-		player->setRM(camera[nextWarp]);
+		
+		//tempVec = glm::rotate(tempVec,rotate[4],glm::vec3(0,1,0));
+		player->warp(tempVec);
+		L = player->getForward();
+		T = glm::normalize(getPosition(modelMatrix[nextWarp]) - player->getPos());
+		axis = glm::cross(T,L);
+		//axis = glm::vec3(0,1,0);
+		//angle = glm::acos(glm::dot(T,L));
+		//player->setRM(glm::rotate(player->getRM(),angle,axis));
 		nextWarp++;
-		if (nextWarp > 4) {
-			nextWarp = 3;
+		if (nextWarp >= 4) {
+			nextWarp = 2;
 		}
 		break;
 

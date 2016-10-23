@@ -45,6 +45,7 @@ public:
 	void warp(glm::vec3 t) {
 		TM = glm::translate(glm::mat4(), t);
 		
+		
 	}
 	glm::vec3 getPos() {
 		return position;
@@ -56,6 +57,9 @@ public:
 	void setRM(glm::mat4 r) {
 
 		RM = r;
+	}
+	glm::vec3 getForward() {
+		return forward;
 	}
     void update(){
 		if (pitch != 0){
