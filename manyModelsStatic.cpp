@@ -23,7 +23,7 @@ const int nModels = 11, nCameras = 5; //Number of models in this scene & Number 
 int currentCamera = 0; //Current camera
 char * modelFile[nModels] = { "spaceShip-bs100.tri","Ruber.tri","Unum.tri","Duo.tri","Primus.tri","Secundus.tri","obelisk-10-20-10.tri", "unum-missle-r25.tri", "secundus-missle-r25.tri", "unum-missle-site-r30.tri", "secundus-missle-site-r30.tri" };
 float modelBR[nModels], scaleValue[nModels]; //Model's bounding radius & model's scaling "size" value
-const int nVertices[nModels] = { 996 * 3 , 264 * 3,264 * 3,264 * 3,264 * 3,264 * 3,14 * 3, 14 * 3, 14 * 3, 12 * 13, 12 * 13 };
+const int nVertices[nModels] = { 996 * 3 , 264 * 3,264 * 3,264 * 3,264 * 3,264 * 3,14 * 3, 14 * 3, 14 * 3, 12 * 3, 12 * 3 };
 char * vertexShaderFile = "simpleVertex.glsl";
 char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint shaderProgram, VAO[nModels], buffer[nModels]; //Vertex Array Objects & Vertex Buffer Objects
@@ -35,7 +35,7 @@ bool idleTimerFlag = true;  //Interval or idle timer ?
 bool gravity = false; //Boolean for Gravity
 glm::mat4 identity(1.0f);
 glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4() };
-float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f,0.0f, 0.0f, 0.004f, 0.002f }; //rotation rates for the orbiting
+float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f,0.004f, 0.002f, 0.004f, 0.002f }; //rotation rates for the orbiting
 float currentRadian[nModels] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; //the current radians meant for rotating
 glm::vec3 currPCL[2];
 //Shader handles, matrices, etc
@@ -52,9 +52,8 @@ glm::vec3(4000, 0, 0),
 glm::vec3(9000, 0, 0), 
 glm::vec3(8100, 0, 0), 
 glm::vec3(7250, 0, 0),
-glm::vec3(4900,1000,4850),
+glm::vec3(5000.0f,1000.0f,5000.0f), //Missle position should be same as ship position
 
-//Scott's new code for now
 glm::vec3(4000, 0, 0), //Unum missle 
 glm::vec3(7250, 0, 0), //Secundus missle
 glm::vec3(4000, 100, 0), //Unum missle site
@@ -62,11 +61,13 @@ glm::vec3(7250, 100, 0) //Secundus missle site
 }; //initial positions of models
 
 glm::vec3 unumPos = translate[2], duoPos = translate[3]; //Initialize unum and duo positions to original translate from vec3 translate array
+glm::vec3 curShipPos = translate[0]; //Initialize ship position to the ship model's translation vector
+
 //glm::mat4 modelMatrix;          // set in display()
 glm::mat4 viewMatrix;           // set in init()
 glm::mat4 projectionMatrix;     // set in reshape()
 glm::mat4 ModelViewProjectionMatrix; // set in display();
-glm::vec3 curShipPos = translate[0]; //Initialize ship position to the ship model's translation vector
+
 
 //array of look at matrices in order to make transitioning from easy
 glm::mat4 camera[nCameras] = { 
@@ -77,7 +78,7 @@ glm::lookAt(glm::vec3(4000.0f, 0.0f, -8000.0f), unumPos, glm::vec3(0.0f, 1.0f, 0
 glm::lookAt(glm::vec3(9000.0f, 0.0f, -8000.0f), duoPos, glm::vec3(0.0f, 1.0f, 0.0f)) //Duo Camera
 };
 
-glm::mat4 modelMatrix[nModels] = {identity, identity,identity,identity,identity,identity,identity};
+glm::mat4 modelMatrix[nModels] = {identity, identity,identity,identity,identity,identity,identity,identity,identity,identity,identity };
 glm::mat4 lastOMShip;
 glm::mat4 lastOMDuo;
 glm::mat4 lastOMUnum;
@@ -141,6 +142,7 @@ void init() {
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 	tempVec = getPosition(camera[4]);
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
+	
 }
 
 //Method to update objects to new screen size
@@ -209,8 +211,13 @@ void update(void) {
 	//Create rotation matrices for each model
 	for (int m = 0; m < nModels; m++) {
 		rotation[m] = glm::rotate(rotation[m], rotateRadian[m], glm::vec3(0, 1, 0));
-		if (m == 0) {
-			modelMatrix[m] = player->getOM(); //Get player's OM matrix and update
+		if (m == 0 || m == 6) {
+			if (warbirdMissleFired) {
+				modelMatrix[m] = glm::translate(glm::mat4(), translate[m]) * rotation[m] * glm::scale(glm::mat4(), glm::vec3(scale[m]));
+			}
+			else {
+				modelMatrix[m] = player->getOM(); //Get player's OM matrix and update
+			}
 		}
 		else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
 			
@@ -256,11 +263,13 @@ void keyboard(unsigned char key, int x, int y) {
 		//If in cadet mode, the current fired missle must detonate so check for it
 		if (!warbirdMissleFired) {
 			//Add code to fire missle 
+
 			if (warbirdMissleCount > 0)
 				//For testing purposes
 				//secundusSiteDestroyed = true;
 				//unumSiteDestroyed = true;
 				warbirdMissleCount--;
+			warbirdMissleFired;
 		}
 		break;
 
@@ -384,8 +393,8 @@ int main(int argc, char* argv[]) {
 
 	
 	//I still need to see exactly what we need to update here
-	glutIdleFunc(update);
 	glutTimerFunc(timerDelay, intervalTimer, 1);
+	glutIdleFunc(update);
 	glutMainLoop();
 	printf("done\n");
 	return 0;
