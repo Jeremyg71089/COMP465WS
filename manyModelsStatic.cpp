@@ -19,11 +19,11 @@ glm::vec3 axis;
 float angle;
 glm::vec3 tempVec;
 //Constants for models:  file names, vertex count, model display size
-const int nModels = 7, nCameras = 5; //Number of models in this scene & Number of cameras
+const int nModels = 11, nCameras = 5; //Number of models in this scene & Number of cameras
 int currentCamera = 0; //Current camera
-char * modelFile[nModels] = { "spaceShip-bs100.tri","Ruber.tri","Unum.tri","Duo.tri","Primus.tri","Secundus.tri","obelisk-10-20-10.tri" };
+char * modelFile[nModels] = { "spaceShip-bs100.tri","Ruber.tri","Unum.tri","Duo.tri","Primus.tri","Secundus.tri","obelisk-10-20-10.tri", "unum-missle-r25.tri", "secundus-missle-r25.tri", "unum-missle-site-r30.tri", "secundus-missle-site-r30.tri" };
 float modelBR[nModels], scaleValue[nModels]; //Model's bounding radius & model's scaling "size" value
-const int nVertices[nModels] = { 996 * 3 , 264 * 3,264 * 3,264 * 3,264 * 3,264 * 3,14 * 3 };
+const int nVertices[nModels] = { 996 * 3 , 264 * 3,264 * 3,264 * 3,264 * 3,264 * 3,14 * 3, 14 * 3, 14 * 3, 12 * 13, 12 * 13 };
 char * vertexShaderFile = "simpleVertex.glsl";
 char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint shaderProgram, VAO[nModels], buffer[nModels]; //Vertex Array Objects & Vertex Buffer Objects
@@ -34,16 +34,16 @@ double currentTime, lastTime, timeInterval;
 bool idleTimerFlag = true;  //Interval or idle timer ?
 bool gravity = false; //Boolean for Gravity
 glm::mat4 identity(1.0f);
-glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() };
-float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f }; //rotation rates for the orbiting
-float currentRadian[nModels] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f }; //the current radians meant for rotating
+glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4() };
+float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f,0.0f, 0.0f, 0.004f, 0.002f }; //rotation rates for the orbiting
+float currentRadian[nModels] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; //the current radians meant for rotating
 glm::vec3 currPCL[2];
 //Shader handles, matrices, etc
 GLuint MVP;  //Model View Projection matrix's handle
 GLuint vPosition[nModels], vColor[nModels], vNormal[nModels];   //vPosition, vColor, vNormal handles for models
 
 //Model, view, projection matrices and values to create modelMatrix.
-float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f,150.0f,25.0f };   // size of model
+float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f,150.0f,25.0f, 25.0f, 25.0f, 30.0f, 30.0f };   // size of model
 glm::vec3 scale[nModels];       // set in init()
 glm::vec3 translate[nModels] = { 
 glm::vec3(5000.0f,1000.0f,5000.0f), 
@@ -52,8 +52,15 @@ glm::vec3(4000, 0, 0),
 glm::vec3(9000, 0, 0), 
 glm::vec3(8100, 0, 0), 
 glm::vec3(7250, 0, 0),
-glm::vec3(4900,1000,4850)
+glm::vec3(4900,1000,4850),
+
+//Scott's new code for now
+glm::vec3(4000, 0, 0), //Unum missle 
+glm::vec3(7250, 0, 0), //Secundus missle
+glm::vec3(4000, 100, 0), //Unum missle site
+glm::vec3(7250, 100, 0) //Secundus missle site
 }; //initial positions of models
+
 glm::vec3 unumPos = translate[2], duoPos = translate[3]; //Initialize unum and duo positions to original translate from vec3 translate array
 //glm::mat4 modelMatrix;          // set in display()
 glm::mat4 viewMatrix;           // set in init()
@@ -74,9 +81,12 @@ glm::mat4 modelMatrix[nModels] = {identity, identity,identity,identity,identity,
 glm::mat4 lastOMShip;
 glm::mat4 lastOMDuo;
 glm::mat4 lastOMUnum;
+
 //Window title string variables
 char viewStr[6] = "Front";
-int warbirdMissleCount = 0, unumMissleCount = 0, secundusMissleCount = 0;
+int warbirdMissleCount = 9, unumMissleCount = 5, secundusMissleCount = 5;
+bool warbirdMissleFired = false, unumMissleFired = false, secundusMissleFired = false;
+bool unumSiteDestroyed = false, secundusSiteDestroyed = false;
 char titleStr[100], fpsStr[5] = { '0' }, timerStr[5] = { '0' };
 
 void specialKeyEvent(int key, int x, int y)
@@ -143,7 +153,17 @@ void reshape(int width, int height) {
 
 //Method to update window title text
 void updateTitle() {
-	sprintf(titleStr, "Warbird %d  Unum %d  Secundus %d  U/S %s  F/S %s  View %s", warbirdMissleCount, unumMissleCount, secundusMissleCount, timerStr, fpsStr, viewStr);
+	if (unumSiteDestroyed && secundusSiteDestroyed) {
+		sprintf(titleStr, "Cadet passes flight training!");
+		//Add code to stop the program
+	}
+	else if (warbirdMissleCount > 0) {
+		sprintf(titleStr, "Warbird %d  Unum %d  Secundus %d  U/S %s  F/S %s  View %s", warbirdMissleCount, unumMissleCount, secundusMissleCount, timerStr, fpsStr, viewStr);
+	}
+	else {
+		sprintf(titleStr, "Cadet resigns from War College!");
+		//Add code to stop the movement of the program
+	}
 	glutSetWindowTitle(titleStr);
 }
 
@@ -232,9 +252,18 @@ void keyboard(unsigned char key, int x, int y) {
 	switch (key) {
 	case 033: case 'q':  case 'Q': exit(EXIT_SUCCESS); break;
 	case 'f': case 'F': //Launch ship missile
-		//Put code in here to fire missiles
-		break;
 		
+		//If in cadet mode, the current fired missle must detonate so check for it
+		if (!warbirdMissleFired) {
+			//Add code to fire missle 
+			if (warbirdMissleCount > 0)
+				//For testing purposes
+				//secundusSiteDestroyed = true;
+				//unumSiteDestroyed = true;
+				warbirdMissleCount--;
+		}
+		break;
+
 	case 'g': case 'G': //Toggle gravity
 		if (gravity == true) {
 			gravity = false;
