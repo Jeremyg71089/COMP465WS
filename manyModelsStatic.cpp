@@ -17,7 +17,9 @@ glm::vec3 L;
 glm::vec3 T;
 glm::vec3 axis;
 float angle;
+glm::mat4 tempMat;
 glm::vec3 tempVec;
+float AORdirection;
 //Constants for models:  file names, vertex count, model display size
 const int nModels = 11, nCameras = 5; //Number of models in this scene & Number of cameras
 int currentCamera = 0; //Current camera
@@ -140,7 +142,6 @@ void init() {
 	//Set render state values
 	glEnable(GL_DEPTH_TEST);
 	glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
-	tempVec = getPosition(camera[4]);
 	lastTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
 	
 }
@@ -207,17 +208,14 @@ void display() {
 }
 
 void update(void) {
-	
+	player->update();
 	//Create rotation matrices for each model
 	for (int m = 0; m < nModels; m++) {
 		rotation[m] = glm::rotate(rotation[m], rotateRadian[m], glm::vec3(0, 1, 0));
-		if (m == 0 || m == 6) {
-			if (warbirdMissleFired) {
-				modelMatrix[m] = glm::translate(glm::mat4(), translate[m]) * rotation[m] * glm::scale(glm::mat4(), glm::vec3(scale[m]));
-			}
-			else {
+		if (m == 0)  {
+
 				modelMatrix[m] = player->getOM(); //Get player's OM matrix and update
-			}
+			
 		}
 		else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
 			
@@ -239,7 +237,7 @@ void update(void) {
 	lastOMUnum = modelMatrix[2];
 	camera[4] = camera[4] * (lastOMDuo * glm::inverse(modelMatrix[3]));
 	lastOMDuo = modelMatrix[3];
-	player->update();
+	
 	glutPostRedisplay();
 }
 
@@ -312,15 +310,9 @@ void keyboard(unsigned char key, int x, int y) {
 
 	case 'w': case 'W': //Warp ship % nPlanets
 		//Put code here to warp planets
-		
-		//tempVec = glm::rotate(tempVec,rotate[4],glm::vec3(0,1,0));
-		player->warp(tempVec);
-		L = player->getForward();
-		T = glm::normalize(getPosition(modelMatrix[nextWarp]) - player->getPos());
-		axis = glm::cross(T,L);
-		//axis = glm::vec3(0,1,0);
-		//angle = glm::acos(glm::dot(T,L));
-		//player->setRM(glm::rotate(player->getRM(),angle,axis));
+		tempMat = rotation[nextWarp] * glm::translate(identity, translate[nextWarp] + glm::vec3(0.0f, 0.0f, -8000.0f)) * glm::scale(glm::mat4(), glm::vec3(scale[0]));
+		tempVec = getPosition(tempMat);
+		player->warp(modelMatrix[nextWarp],rotation[nextWarp], tempVec);
 		nextWarp++;
 		if (nextWarp >= 4) {
 			nextWarp = 2;
@@ -345,7 +337,7 @@ void keyboard(unsigned char key, int x, int y) {
 		else if (currentCamera == 4){ strcpy(viewStr, "Duo");}
 
 	updateTitle();
-	glutPostRedisplay();
+	//glutPostRedisplay();
 }
 
 int main(int argc, char* argv[]) {

@@ -11,12 +11,19 @@ private:
 	int stepDistance = 20;
 	int pitch = 0, roll = 0 , yaw = 0;
     float radians = 0.02f;
+	float angle = 0.0f;
+	glm::vec3 axis = glm::vec3(0.0f);
 	glm::vec3 forward = glm::vec3(0.0f);
     glm::mat4 RM = glm::mat4();
+	glm::mat4 RM2 = glm::mat4();
 	glm::mat4 OM = glm::mat4();
 	glm::mat4 TM = glm::mat4();
 	glm::mat4 SM = glm::mat4();
 	glm::vec3 position;
+	glm::vec3 T;
+	glm::vec3 L;
+	float AORdirection;
+	bool isWarping = false;
 
 public:
 
@@ -42,11 +49,37 @@ public:
 	glm::mat4 getOM() {
 		return OM;
 	}
-	void warp(glm::vec3 t) {
+	//function to warp
+	void warp(glm::mat4 p,glm::mat4 r, glm::vec3 t) {
+		//Use translation vector to get transformation matrix
 		TM = glm::translate(glm::mat4(), t);
-		
-		
+		//create a matrix with translation vector in order to get hypothetical OM
+		glm::mat4 tempMat = glm::translate(glm::mat4(), t) *  SM;
+		//use this hypothetical OM to get the lat vector of where the ship would be
+		//after it changes position
+		L = getIn(tempMat);
+		//get Target vector which comes from the position the ship is going to be at
+		//after warping and the position of the planet
+		T = getPosition(p) - getPosition(tempMat);
+		//normalize both vectors
+		T = glm::normalize(T);
+		L = glm::normalize(L);
+		//cross product of T and L to get orthogonal vector 
+		//this is the axis of rotation
+		axis = glm::cross(T, L);
+		//normalize axis
+		axis = glm::normalize(axis);
+		//to determine the direction of the rotation
+		//acos gives the radians for rotation but only from 0 to PI
+		//however since glm::rotate adjust the rotation if the axis is negative
+		//it is not necessary to do anything to acos other than subtract it from 2PI
+		angle = (2.0f*PI) - acos(glm::dot(T,L));
+		//use the found rotational angle and axis to rotate the space ship
+		//we rotate it around the identity because we do not need take the current
+		//RM into account
+		RM = glm::rotate(glm::mat4(), angle, axis);
 	}
+
 	glm::vec3 getPos() {
 		return position;
 	}
@@ -78,9 +111,8 @@ public:
 		step = 0;
 		yaw = 0;
 		roll = 0;
-		pitch = 0;
+		pitch = 0;	
     }
-
 };
 
 
