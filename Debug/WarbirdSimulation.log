@@ -15,6 +15,5 @@
   GLM: GLM_GTC_type_ptr extension included
   GLM: GLM_GTX_transform extension included
   GLM: GLM_GTX_rotate_vector extension included
-c:\users\claws\documents\github\comp465ws\missle.hpp(101): warning C4305: '=': truncation from 'double' to 'float'
   WarbirdSimulation.vcxproj -> C:\Users\claws\Documents\GitHub\COMP465WS\Debug\WarbirdSimulation.exe
   WarbirdSimulation.vcxproj -> C:\Users\claws\Documents\GitHub\COMP465WS\Debug\WarbirdSimulation.pdb (Partial PDB)

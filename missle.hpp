@@ -89,17 +89,7 @@ public:
 
 	//function to chase target
 	void chaseTarget(glm::mat4 targetPos) {
-		//Use translation vector to get transformation matrix
-		//TM = glm::translate(glm::mat4(), t);
-
-		//create a matrix with translation vector in order to get hypothetical OM
-		//glm::mat4 tempMat = glm::translate(glm::mat4(), t) *  SM;
-
 		//Get the looking at vector from the the chaser
-		OM[2].x = 0;
-		OM[2].y = 0;
-		OM[2].z = 1.15850019;
-
 		L = getIn(OM);
 
 		//Get distance between the target and chaser
@@ -143,6 +133,7 @@ public:
 	glm::vec3 getForward() {
 		return forward;
 	}
+
     void update(){
 		updates++;
 		if (updates == 2000) {
@@ -155,6 +146,7 @@ public:
 		forward = getIn(OM) * (float)step * (float)stepDistance;
 		TM = glm::translate(TM, forward);
 		OM = TM * RM * SM;
+		step = 0;
     }
 };
 

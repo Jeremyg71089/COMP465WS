@@ -31,9 +31,9 @@ char * fragmentShaderFile = "simpleFragment.glsl";
 GLuint shaderProgram, VAO[nModels], buffer[nModels]; //Vertex Array Objects & Vertex Buffer Objects
 int nextWarp = 2;
 int timerDelay = 5, frameCount = 0;
-int timerDelayCounter = 0; //Counter for timer delay speed
+int timerDelayCounter = 1; //Counter for timer delay speed
 double currentTime, lastTime, timeInterval;
-bool idleTimerFlag = true;  //Interval or idle timer ?
+bool idleTimerFlag = false;  //Interval or idle timer ?
 bool gravity = false; //Boolean for Gravity
 glm::mat4 identity(1.0f);
 glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4() };
@@ -178,7 +178,7 @@ void init() {
 	warbirdMissles[0] = new Missle(translate[6], scale[6], 0);
 	//showVec3("Lat for missle", getIn(warbirdMissles[0]->getOM()));
 	//showVec3("Lat for Ruber", getIn(modelMatrix[1]));
-  	
+	warbirdMissles[0]->chaseTarget(modelMatrix[0]);
 	
 	modelMatrix[6] = warbirdMissles[0]->getOM();
 
@@ -230,7 +230,7 @@ void display() {
 	glClearColor(0, 0, 0, 0);
 
 	//Update model matrix
-	for (int m = 0; m < nModels; m++) {
+	for (int m = 0; m < nModels - 1; m++) {
 		
 		//Set the view matrix here so cameras can be dynamic
 		viewMatrix = camera[currentCamera];
@@ -241,7 +241,7 @@ void display() {
 		glBindVertexArray(VAO[m]);
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
 	}
-
+	
 	
 	glutSwapBuffers();
 	frameCount++;
@@ -264,7 +264,8 @@ void display() {
 
 void update(void) {
 	player->update();
-	
+	warbirdMissles[0]->update();
+	modelMatrix[6] = warbirdMissles[0]->getOM();
 
 	//Activate missle defense sites after 200 updates
 	if (numUpdates > 200 || currentUnumMissle < unumMisslesTotal || currentSecundusMissle < secundusMisslesTotal) {
@@ -512,7 +513,7 @@ int main(int argc, char* argv[]) {
 	
 	//I still need to see exactly what we need to update here
 	glutTimerFunc(timerDelay, intervalTimer, 1);
-	glutIdleFunc(update);
+	glutIdleFunc(display);
 	glutMainLoop();
 	printf("done\n");
 	return 0;
