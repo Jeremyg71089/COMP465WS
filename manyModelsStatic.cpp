@@ -8,7 +8,7 @@ Warbird Simulation Phase 1
 #include "Shape3D.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 #include "player.hpp"
-
+#include "missle.hpp"
 
 int n = 0, j  = 0;
 const int X = 0, Y = 1, Z = 2, START = 0, STOP = 1;
@@ -37,7 +37,7 @@ bool idleTimerFlag = true;  //Interval or idle timer ?
 bool gravity = false; //Boolean for Gravity
 glm::mat4 identity(1.0f);
 glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4() };
-float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f,0.0f,0.004f, 0.002f, 0.004f, 0.002f }; //rotation rates for the orbiting
+float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f, 0.0f,0.004f, 0.002f, 0.004f, 0.002f }; //rotation rates for the orbiting
 float currentRadian[nModels] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; //the current radians meant for rotating
 glm::vec3 currPCL[2];
 //Shader handles, matrices, etc
@@ -45,21 +45,22 @@ GLuint MVP;  //Model View Projection matrix's handle
 GLuint vPosition[nModels], vColor[nModels], vNormal[nModels];   //vPosition, vColor, vNormal handles for models
 
 //Model, view, projection matrices and values to create modelMatrix.
-float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f,150.0f,25.0f, 25.0f, 25.0f, 30.0f, 30.0f };   // size of model
-glm::vec3 scale[nModels];       // set in init()
+float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f, 150.0f,80.0f, 100.0f, 25.0f, 30.0f, 30.0f };   // size of model
+glm::vec3 scale[nModels];       // set in init() 
 glm::vec3 translate[nModels] = { 
-glm::vec3(5000.0f,1000.0f,5000.0f), 
-glm::vec3(0, 0, 0), 
-glm::vec3(4000, 0, 0), 
-glm::vec3(9000, 0, 0), 
-glm::vec3(8100, 0, 0), 
-glm::vec3(7250, 0, 0),
+glm::vec3(5000.0f,1000.0f,5000.0f), //Spaceship
+glm::vec3(0, 0, 0), //Ruber
+glm::vec3(4000, 0, 0), //Unum
+glm::vec3(9000, 0, 0), //Duo
+glm::vec3(8100, 0, 0), //Primus
+glm::vec3(7250, 0, 0), //Secundus
 glm::vec3(5000.0f,1000.0f,5000.0f), //Missle position should be same as ship position
 
-glm::vec3(4000, 0, 0), //Unum missle 
+glm::vec3(4000, 195, 0), //Unum missle 
 glm::vec3(7250, 0, 0), //Secundus missle
-glm::vec3(4000, 100, 0), //Unum missle site
-glm::vec3(7250, 100, 0) //Secundus missle site
+
+glm::vec3(4000, 190, 0), //Unum missle site
+glm::vec3(7250, 140, 0) //Secundus missle site
 }; //initial positions of models
 
 glm::vec3 unumPos = translate[2], duoPos = translate[3]; //Initialize unum and duo positions to original translate from vec3 translate array
@@ -91,6 +92,23 @@ int warbirdMissleCount = 9, unumMissleCount = 5, secundusMissleCount = 5;
 bool warbirdMissleFired = false, unumMissleFired = false, secundusMissleFired = false;
 bool unumSiteDestroyed = false, secundusSiteDestroyed = false;
 char titleStr[100], fpsStr[5] = { '0' }, timerStr[5] = { '0' };
+
+//Missle variables
+const int warbirdMisslesTotal = 9, unumMisslesTotal = 5, secundusMisslesTotal = 5;
+int missleUpdates = 0, numUpdates = 0;
+int currentWarbirdMissle = 0, currentUnumMissle = 0, currentSecundusMissle = 0;
+Missle *warbirdMissles[warbirdMisslesTotal], *unumMissles[unumMisslesTotal], *secundusMissles[secundusMisslesTotal];
+
+
+//Calculate the distance between two points
+float getDistance(float x, float y, float z) {
+	return glm::sqrt(x*x + y + z*z);	
+}
+
+//Subtract two vectors
+glm::vec3 subtractTwoVectors(glm::vec3 v1, glm::vec3 v2) {
+	return glm::vec3(v1-v2);
+}
 
 void specialKeyEvent(int key, int x, int y)
 {
@@ -133,8 +151,42 @@ void init() {
 		scale[i] = glm::vec3(modelSize[i] * 1.0f / modelBR[i]);
 	}
 
+	
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
 	player = new Player(curShipPos, scale[0]);
+
+
+	//Create the missle objects for warbird
+	//for (int i = 0; i < warbirdMisslesTotal; i++) {
+	//	warbirdMissles[i] = new Missle(translate[6], scale[6], i);
+	//	warbirdMissles[i]->setRM(glm::rotate(identity, -1.571f, glm::vec3(1, 0, 0)));
+	//	rotation[6] = warbirdMissles[i]->getRM();
+	//	warbirdMissles[i]->update();
+	//	
+	//}
+
+	//Create the missle objects for unum missle site
+	for (int i = 0; i < unumMisslesTotal; i++) {
+		unumMissles[i] = new Missle(getPosition(modelMatrix[9]), scale[9], i);
+	}
+
+	//Create the missle objects for secundus missle site
+	for (int i = 0; i < secundusMisslesTotal; i++) {
+		secundusMissles[i] = new Missle(getPosition(modelMatrix[10]), scale[10], i);
+	}
+
+	warbirdMissles[0] = new Missle(translate[6], scale[6], 0);
+	//showVec3("Lat for missle", getIn(warbirdMissles[0]->getOM()));
+	//showVec3("Lat for Ruber", getIn(modelMatrix[1]));
+  	
+	
+	modelMatrix[6] = warbirdMissles[0]->getOM();
+
+	//showVec3("Lat for missle", getIn(warbirdMissles[0]->getOM()));
+	//showVec3("Lat for warbird", getIn(player->getOM()));
+	//showMat4("Missle OM:", warbirdMissles[0]->getOM());
+	//showMat4("Player OM:", player->getOM());
+
 	viewMatrix = camera[0];
 	lastOMShip = player->getOM();
 	lastOMUnum = rotation[2] * glm::translate(glm::mat4(), translate[2]) * glm::scale(glm::mat4(), glm::vec3(scale[2]));
@@ -189,6 +241,8 @@ void display() {
 		glBindVertexArray(VAO[m]);
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
 	}
+
+	
 	glutSwapBuffers();
 	frameCount++;
 
@@ -207,15 +261,75 @@ void display() {
 	
 }
 
+
 void update(void) {
 	player->update();
+	
+
+	//Activate missle defense sites after 200 updates
+	if (numUpdates > 200 || currentUnumMissle < unumMisslesTotal || currentSecundusMissle < secundusMisslesTotal) {
+		//Check to see if the spaceship is within detection for the two missle sites
+		glm::vec3 target = subtractTwoVectors(getPosition(modelMatrix[0]), getPosition(modelMatrix[9])); //Spaceship pos - Unum missle site position
+
+		//If so then fire a missle at the spaceship from unum's missle base
+		if (getDistance(target.x, target.y, target.z) <= 5000.0f && currentUnumMissle < unumMisslesTotal) {
+			
+			//If missle isn't fired yet, then fire it
+			if (!unumMissles[currentUnumMissle]->getFired()) {
+				unumMissles[currentUnumMissle]->fireMissle();				
+			} else { //Otherwise, keep track of it
+				//If it's not detonated or collided, then update it **Need to add code for collided with warbird
+				if (unumMissles[currentUnumMissle]->collided()) {
+					//put code here to stop the program and to update the window title
+				} else if (unumMissles[currentUnumMissle]->detonated()) {
+					//Testing
+					printf("Unum Missle %d detonated\n", currentUnumMissle);
+					unumMissleCount--;					
+					currentUnumMissle++; //Either it detonated or collided so move to the next missle
+				} else {
+					unumMissles[currentUnumMissle]->update();
+				}				
+			}
+			
+			//Testing
+			//printf("Spaceship deteted by Unum\n");
+		}
+
+		//If so then fire a missle at the spaceship from secundus' missle base
+		target = subtractTwoVectors(getPosition(modelMatrix[0]), getPosition(modelMatrix[10])); //Spaceship pos - Secundus missle site position
+		if (getDistance(target.x, target.y, target.z) <= 5000.0f && currentSecundusMissle < secundusMisslesTotal) {
+
+			//If missle isn't fired yet, then fire it
+			if (!secundusMissles[currentSecundusMissle]->getFired()) {
+				secundusMissles[currentSecundusMissle]->fireMissle();
+			}
+			else { //Otherwise, keep track of it
+				   //If it's not detonated or collided, then update it **Need to add code for collided with warbird
+				if (secundusMissles[currentSecundusMissle]->collided()) {
+					//put code here to stop the program and to update the window title
+				}
+				else if (secundusMissles[currentSecundusMissle]->detonated()) {
+					//Testing
+					printf("Secundus Missle %d detonated\n", currentSecundusMissle);
+					secundusMissleCount--;
+					currentSecundusMissle++; //Either it detonated or collided so move to the next missle
+				}
+				else {
+					secundusMissles[currentSecundusMissle]->update();
+				}
+			}
+
+			//Testing
+			//printf("Spaceship deteted by Secundus\n");
+		}
+	}
+	
+
 	//Create rotation matrices for each model
 	for (int m = 0; m < nModels; m++) {
 		rotation[m] = glm::rotate(rotation[m], rotateRadian[m], glm::vec3(0, 1, 0));
 		if (m == 0)  {
-
-				modelMatrix[m] = player->getOM(); //Get player's OM matrix and update
-			
+				modelMatrix[m] = player->getOM(); //Get player's OM matrix and update			
 		}
 		else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
 			
@@ -223,7 +337,9 @@ void update(void) {
 			modelMatrix[m] = glm::translate(identity, temp) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		}
 		//Regular equation for rotating around the y-axis
-		else {
+		else if (m == 6) {
+
+		} else {
 			modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		}
 
@@ -238,6 +354,7 @@ void update(void) {
 	camera[4] = camera[4] * (lastOMDuo * glm::inverse(modelMatrix[3]));
 	lastOMDuo = modelMatrix[3];
 	
+	numUpdates++; //Keep track of updates
 	glutPostRedisplay();
 }
 
@@ -259,17 +376,26 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'f': case 'F': //Launch ship missile
 		
 		//If in cadet mode, the current fired missle must detonate so check for it
-		if (!warbirdMissleFired) {
+		if (!warbirdMissles[currentWarbirdMissle]->getFired() && currentWarbirdMissle < warbirdMisslesTotal) {
 			//Add code to fire missle 
-
-			if (warbirdMissleCount > 0)
-				//For testing purposes
-				//secundusSiteDestroyed = true;
-				//unumSiteDestroyed = true;
+			warbirdMissles[currentWarbirdMissle]->fireMissle();
+		} else { //Otherwise, keep track of it
+			   //If it's not detonated or collided, then update it **Need to add code for collided with warbird
+			if (warbirdMissles[currentWarbirdMissle]->collided()) {
+				//put code here to stop the program and to update the window title
+			}
+			else if (warbirdMissles[currentWarbirdMissle]->detonated()) {
+				//Testing
+				printf("Warbird Missle %d detonated\n", currentSecundusMissle);
 				warbirdMissleCount--;
-			warbirdMissleFired;
+				currentWarbirdMissle++; //Either it detonated or collided so move to the next missle
+			}
+			else {
+				warbirdMissles[currentWarbirdMissle]->update();
+			}
 		}
-		break;
+
+			break;
 
 	case 'g': case 'G': //Toggle gravity
 		if (gravity == true) {
