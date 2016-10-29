@@ -11,10 +11,10 @@ private:
 	bool isFired;
 	bool isDetonated;
 	bool isCollided;
-	int objectId;
+	bool isSite;
 	int updates;
 	int step = 0;
-	int stepDistance = 20;
+	int stepDistance = 0;
 	float angle = 0.0f;
 	glm::vec3 axis = glm::vec3(0.0f);
 	glm::vec3 forward = glm::vec3(0.0f);
@@ -30,12 +30,17 @@ private:
 
 public:
 
-	Missle(glm::vec3 translate , glm::vec3 scale, int id) {
-		objectId = id;
+	Missle(glm::vec3 translate , glm::vec3 scale, bool isSite) {
 		isVisible = false;
 		isFired = false;
 		isDetonated = false;
 		isCollided = false;
+		if (isSite) {
+			stepDistance = 5;
+		}
+		else {
+			stepDistance = 20;
+		}
 		updates = 0;
 		position = translate;
 		TM = glm::translate(glm::mat4(), translate);

@@ -158,33 +158,22 @@ void init() {
 
 	//Create the missle objects for warbird
 	for (int i = 0; i < warbirdMisslesTotal; i++) {
-		warbirdMissles[i] = new Missle(translate[6], scale[6], i);
-		warbirdMissles[i]->setRM(glm::rotate(identity, -1.571f, glm::vec3(1, 0, 0)));
-		rotation[6] = warbirdMissles[i]->getRM();
-		warbirdMissles[i]->update();
-		
+		warbirdMissles[i] = new Missle(translate[6], scale[6], false);
 	}
 
 	//Create the missle objects for unum missle site
 	for (int i = 0; i < unumMisslesTotal; i++) {
-		unumMissles[i] = new Missle(getPosition(modelMatrix[9]), scale[9], i);
+		unumMissles[i] = new Missle(getPosition(modelMatrix[9]), scale[9], true);
 	}
 
 	//Create the missle objects for secundus missle site
 	for (int i = 0; i < secundusMisslesTotal; i++) {
-		secundusMissles[i] = new Missle(getPosition(modelMatrix[10]), scale[10], i);
+		secundusMissles[i] = new Missle(getPosition(modelMatrix[10]), scale[10], true);
 	}
 
-	warbirdMissles[0] = new Missle(translate[6], scale[6], 0);
-	//showVec3("Lat for missle", getIn(warbirdMissles[0]->getOM()));
-	//showVec3("Lat for Ruber", getIn(modelMatrix[1]));
-	
+	//Start of first warbird missle to have the ships position
 	modelMatrix[6] = warbirdMissles[0]->getOM();
 
-	//showVec3("Lat for missle", getIn(warbirdMissles[0]->getOM()));
-	//showVec3("Lat for warbird", getIn(player->getOM()));
-	//showMat4("Missle OM:", warbirdMissles[0]->getOM());
-	//showMat4("Player OM:", player->getOM());
 
 	viewMatrix = camera[0];
 	lastOMShip = player->getOM();

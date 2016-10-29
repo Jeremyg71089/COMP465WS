@@ -15,5 +15,7 @@
   GLM: GLM_GTC_type_ptr extension included
   GLM: GLM_GTX_transform extension included
   GLM: GLM_GTX_rotate_vector extension included
+c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(166): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\claws\documents\github\comp465ws\manymodelsstatic.cpp(171): warning C4800: 'int': forcing value to bool 'true' or 'false' (performance warning)
   WarbirdSimulation.vcxproj -> C:\Users\claws\Documents\GitHub\COMP465WS\Debug\WarbirdSimulation.exe
   WarbirdSimulation.vcxproj -> C:\Users\claws\Documents\GitHub\COMP465WS\Debug\WarbirdSimulation.pdb (Partial PDB)
