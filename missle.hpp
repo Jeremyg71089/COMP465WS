@@ -43,8 +43,7 @@ public:
 		//RM = glm::rotate(RM, -1.571f, glm::vec3(1, 0, 0));
 		OM = TM * RM * SM;
 	}
-
-
+	
 	glm::mat4 getOM() {
 		return OM;
 	}

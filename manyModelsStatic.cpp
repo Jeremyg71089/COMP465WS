@@ -157,13 +157,13 @@ void init() {
 
 
 	//Create the missle objects for warbird
-	//for (int i = 0; i < warbirdMisslesTotal; i++) {
-	//	warbirdMissles[i] = new Missle(translate[6], scale[6], i);
-	//	warbirdMissles[i]->setRM(glm::rotate(identity, -1.571f, glm::vec3(1, 0, 0)));
-	//	rotation[6] = warbirdMissles[i]->getRM();
-	//	warbirdMissles[i]->update();
-	//	
-	//}
+	for (int i = 0; i < warbirdMisslesTotal; i++) {
+		warbirdMissles[i] = new Missle(translate[6], scale[6], i);
+		warbirdMissles[i]->setRM(glm::rotate(identity, -1.571f, glm::vec3(1, 0, 0)));
+		rotation[6] = warbirdMissles[i]->getRM();
+		warbirdMissles[i]->update();
+		
+	}
 
 	//Create the missle objects for unum missle site
 	for (int i = 0; i < unumMisslesTotal; i++) {
@@ -178,7 +178,6 @@ void init() {
 	warbirdMissles[0] = new Missle(translate[6], scale[6], 0);
 	//showVec3("Lat for missle", getIn(warbirdMissles[0]->getOM()));
 	//showVec3("Lat for Ruber", getIn(modelMatrix[1]));
-	warbirdMissles[0]->chaseTarget(modelMatrix[0]);
 	
 	modelMatrix[6] = warbirdMissles[0]->getOM();
 
@@ -241,8 +240,7 @@ void display() {
 		glBindVertexArray(VAO[m]);
 		glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
 	}
-	
-	
+		
 	glutSwapBuffers();
 	frameCount++;
 
@@ -264,8 +262,18 @@ void display() {
 
 void update(void) {
 	player->update();
-	warbirdMissles[0]->update();
-	modelMatrix[6] = warbirdMissles[0]->getOM();
+
+	if (warbirdMissles[currentWarbirdMissle]->getFired()) {
+		warbirdMissles[currentWarbirdMissle]->update();
+		modelMatrix[6] = warbirdMissles[currentWarbirdMissle]->getOM();
+
+		if (warbirdMissles[currentWarbirdMissle]->detonated() && currentWarbirdMissle < warbirdMisslesTotal) {
+			currentWarbirdMissle++;
+		}
+	}
+	else {
+		modelMatrix[6] = player->getOM() * glm::scale(identity, scale[6]);
+	}
 
 	//Activate missle defense sites after 200 updates
 	if (numUpdates > 200 || currentUnumMissle < unumMisslesTotal || currentSecundusMissle < secundusMisslesTotal) {
@@ -379,7 +387,9 @@ void keyboard(unsigned char key, int x, int y) {
 		//If in cadet mode, the current fired missle must detonate so check for it
 		if (!warbirdMissles[currentWarbirdMissle]->getFired() && currentWarbirdMissle < warbirdMisslesTotal) {
 			//Add code to fire missle 
+			warbirdMissles[0]->chaseTarget(modelMatrix[0]);
 			warbirdMissles[currentWarbirdMissle]->fireMissle();
+			warbirdMissleCount--;
 		} else { //Otherwise, keep track of it
 			   //If it's not detonated or collided, then update it **Need to add code for collided with warbird
 			if (warbirdMissles[currentWarbirdMissle]->collided()) {
@@ -388,7 +398,6 @@ void keyboard(unsigned char key, int x, int y) {
 			else if (warbirdMissles[currentWarbirdMissle]->detonated()) {
 				//Testing
 				printf("Warbird Missle %d detonated\n", currentSecundusMissle);
-				warbirdMissleCount--;
 				currentWarbirdMissle++; //Either it detonated or collided so move to the next missle
 			}
 			else {
