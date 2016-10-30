@@ -406,7 +406,7 @@ void keyboard(unsigned char key, int x, int y) {
 		break;
 
 	case 's': case 'S': //For next ship speed % nSpeeds
-		//Put code in here for ship speed
+		player->changeSpeed();
 		break;
 
 	case 't': case 'T':  //Change animation timer for pilot mode

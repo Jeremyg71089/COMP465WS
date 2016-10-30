@@ -8,7 +8,9 @@
 class Player{
 private:
     int step = 0;
-	int stepDistance = 20;
+	int speed[3] = {10,50,200};
+	int currentSpeed = 0;
+	int stepDistance;
 	int pitch = 0, roll = 0 , yaw = 0;
     float radians = 0.02f;
 	float angle = 0.0f;
@@ -32,7 +34,14 @@ public:
 		TM = glm::translate(glm::mat4(),t);
 		SM = glm::scale(glm::mat4(), s);
 		OM = TM * RM * SM;
-
+		stepDistance = speed[currentSpeed];
+	}
+	void changeSpeed() {
+		currentSpeed++;
+		if (currentSpeed >= 3) {
+			currentSpeed = 0;
+		}
+		stepDistance = speed[currentSpeed];
 	}
 	void setMove(int i){
 		step = i;
