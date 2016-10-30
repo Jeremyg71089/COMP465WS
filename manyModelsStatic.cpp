@@ -105,11 +105,6 @@ float getDistance(float x, float y, float z) {
 	return glm::sqrt(x*x + y + z*z);	
 }
 
-//Subtract two vectors
-glm::vec3 subtractTwoVectors(glm::vec3 v1, glm::vec3 v2) {
-	return glm::vec3(v1-v2);
-}
-
 void specialKeyEvent(int key, int x, int y)
 {
 if (key == GLUT_KEY_UP && glutGetModifiers() != GLUT_ACTIVE_CTRL)
@@ -252,7 +247,8 @@ void display() {
 void update(void) {
 	player->update();
 
-	if (warbirdMissles[currentWarbirdMissle]->getFired()) {
+	
+		if (warbirdMissles[currentWarbirdMissle]->getFired()) {
 		warbirdMissles[currentWarbirdMissle]->update();
 		modelMatrix[6] = warbirdMissles[currentWarbirdMissle]->getOM();
 
@@ -262,19 +258,24 @@ void update(void) {
 	}
 	else {
 		modelMatrix[6] = player->getOM() * glm::scale(identity, scale[6]);
+		warbirdMissles[currentWarbirdMissle]->setOM(modelMatrix[6]);
 	}
 
 	//Activate missle defense sites after 200 updates
 	if (numUpdates > 200 || currentUnumMissle < unumMisslesTotal || currentSecundusMissle < secundusMisslesTotal) {
 		//Check to see if the spaceship is within detection for the two missle sites
-		glm::vec3 target = subtractTwoVectors(getPosition(modelMatrix[0]), getPosition(modelMatrix[9])); //Spaceship pos - Unum missle site position
+		glm::vec3 target = getPosition(modelMatrix[0]) - getPosition(modelMatrix[9]); //Spaceship pos - Unum missle site position
 
 		//If so then fire a missle at the spaceship from unum's missle base
 		if (getDistance(target.x, target.y, target.z) <= 5000.0f && currentUnumMissle < unumMisslesTotal) {
 			
 			//If missle isn't fired yet, then fire it
 			if (!unumMissles[currentUnumMissle]->getFired()) {
-				unumMissles[currentUnumMissle]->fireMissle();				
+				unumMissles[currentUnumMissle]->fireMissle();	
+				//Add code to update missile
+				//Call chasetarget
+				//Call update
+
 			} else { //Otherwise, keep track of it
 				//If it's not detonated or collided, then update it **Need to add code for collided with warbird
 				if (unumMissles[currentUnumMissle]->collided()) {
@@ -284,9 +285,7 @@ void update(void) {
 					printf("Unum Missle %d detonated\n", currentUnumMissle);
 					unumMissleCount--;					
 					currentUnumMissle++; //Either it detonated or collided so move to the next missle
-				} else {
-					unumMissles[currentUnumMissle]->update();
-				}				
+				} 
 			}
 			
 			//Testing
@@ -294,12 +293,15 @@ void update(void) {
 		}
 
 		//If so then fire a missle at the spaceship from secundus' missle base
-		target = subtractTwoVectors(getPosition(modelMatrix[0]), getPosition(modelMatrix[10])); //Spaceship pos - Secundus missle site position
+		target = getPosition(modelMatrix[0]) - getPosition(modelMatrix[10]); //Spaceship pos - Secundus missle site position
 		if (getDistance(target.x, target.y, target.z) <= 5000.0f && currentSecundusMissle < secundusMisslesTotal) {
 
 			//If missle isn't fired yet, then fire it
 			if (!secundusMissles[currentSecundusMissle]->getFired()) {
 				secundusMissles[currentSecundusMissle]->fireMissle();
+				//Add code to update missile
+				//Call chasetarget
+				//Call update
 			}
 			else { //Otherwise, keep track of it
 				   //If it's not detonated or collided, then update it **Need to add code for collided with warbird
@@ -336,7 +338,8 @@ void update(void) {
 		}
 		//Regular equation for rotating around the y-axis
 		else if (m == 6) {
-
+			modelMatrix[m] = player->getOM() * glm::scale(glm::mat4(), glm::vec3(scale[m]));
+			warbirdMissles[currentWarbirdMissle]->setOM(modelMatrix[m]);
 		} else {
 			modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		}
@@ -376,9 +379,10 @@ void keyboard(unsigned char key, int x, int y) {
 		//If in cadet mode, the current fired missle must detonate so check for it
 		if (!warbirdMissles[currentWarbirdMissle]->getFired() && currentWarbirdMissle < warbirdMisslesTotal) {
 			//Add code to fire missle 
-			warbirdMissles[0]->chaseTarget(modelMatrix[0]);
 			warbirdMissles[currentWarbirdMissle]->fireMissle();
 			warbirdMissleCount--;
+			warbirdMissles[currentWarbirdMissle]->chaseTarget(modelMatrix[1]);			
+			
 		} else { //Otherwise, keep track of it
 			   //If it's not detonated or collided, then update it **Need to add code for collided with warbird
 			if (warbirdMissles[currentWarbirdMissle]->collided()) {
@@ -389,11 +393,7 @@ void keyboard(unsigned char key, int x, int y) {
 				printf("Warbird Missle %d detonated\n", currentSecundusMissle);
 				currentWarbirdMissle++; //Either it detonated or collided so move to the next missle
 			}
-			else {
-				warbirdMissles[currentWarbirdMissle]->update();
-			}
 		}
-
 			break;
 
 	case 'g': case 'G': //Toggle gravity

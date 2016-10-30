@@ -30,12 +30,13 @@ private:
 
 public:
 
-	Missle(glm::vec3 translate , glm::vec3 scale, bool isSite) {
+	Missle(glm::vec3 translate , glm::vec3 scale, bool site) {
 		isVisible = false;
 		isFired = false;
 		isDetonated = false;
 		isCollided = false;
-		if (isSite) {
+		isSite = site;
+		if (site) {
 			stepDistance = 5;
 		}
 		else {
@@ -121,7 +122,7 @@ public:
 		//RM into account
 
 		RM = glm::rotate(RM, angle, axis);
-		OM = TM * RM * SM;
+		OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 		
 	}
 
@@ -130,6 +131,9 @@ public:
 	}
 	glm::mat4 getRM() {
 		return RM;
+	}
+	void setOM(glm::mat4 inOM) {
+		OM = inOM;
 	}
 	void setRM(glm::mat4 r) {
 		RM = r;
