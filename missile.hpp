@@ -5,7 +5,7 @@
 # define __INCLUDES465__
 # endif
 
-class Missle{
+class Missile{
 private:
 	bool isVisible;
 	bool isFired;
@@ -30,7 +30,7 @@ private:
 
 public:
 
-	Missle(glm::vec3 translate , glm::vec3 scale, bool site) {
+	Missile(glm::vec3 translate , glm::vec3 scale, bool site) {
 		isVisible = false;
 		isFired = false;
 		isDetonated = false;
@@ -44,9 +44,9 @@ public:
 		}
 		updates = 0;
 		position = translate;
-		TM = glm::translate(glm::mat4(), translate);
+		TM = glm::translate(TM, translate);
 		SM = glm::scale(glm::mat4(), scale);
-		//RM = glm::rotate(RM, -1.571f, glm::vec3(1, 0, 0));
+		//RM = glm::rotate(RM, 0.0f, glm::vec3(0, 1, 0));
 		OM = TM * RM * SM;
 	}
 	
@@ -56,24 +56,33 @@ public:
 
 	void setTranslate(glm::vec3 translate) {
 		TM = glm::translate(glm::mat4(), translate);
-		OM = TM * RM * SM;
 	}
 
 	//Finish this method
 	void setRotate(glm::mat4 inputRM) {
-		//RM = glm::rotate(inputRM, 0.0f, glm::vec3(1, 0, 0));;
-		OM = TM * RM * SM;
+		RM = inputRM;
 	}
 
-	//Method to fire missle
-	void fireMissle() {
+	//Method to fire missile
+	void fireMissile() {
 		if (isFired == false && isDetonated == false) {
 			isFired = true;
 			isVisible = true;
 		}		
 	}
 
-	//Method to fire missle
+	glm::mat4 getTM() {
+		return TM;
+	}
+
+	void setTM(glm::mat4 inTM) {
+		 TM = inTM;
+	}
+	glm::mat4 getRM() {
+
+		return RM;
+	}
+	//Method to fire missile
 	bool getFired() {
 		return isFired;
 	}
@@ -93,7 +102,7 @@ public:
 
 
 	//function to chase target
-	void chaseTarget(glm::mat4 targetPos) {
+	void faceTarget(glm::mat4 targetPos) {
 		//Get the looking at vector from the the chaser
 		L = getIn(OM);
 
@@ -129,14 +138,18 @@ public:
 	glm::vec3 getPos() {
 		return position;
 	}
-	glm::mat4 getRM() {
-		return RM;
+	glm::mat4 getSM() {
+
+		return SM;
 	}
 	void setOM(glm::mat4 inOM) {
 		OM = inOM;
 	}
 	void setRM(glm::mat4 r) {
 		RM = r;
+	}
+	void setSM(glm::mat4 inSM) {
+		SM = inSM;
 	}
 	glm::vec3 getForward() {
 		return forward;
@@ -148,7 +161,7 @@ public:
 			isDetonated = true;
 		}
 		
-		//put code to keep updating the missle to go after its target
+		//put code to keep updating the missile to go after its target
 		//put code to detect if there is a collision
 		step++;
 		forward = getIn(OM) * (float)step * (float)stepDistance;

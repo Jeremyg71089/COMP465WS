@@ -103,6 +103,14 @@ public:
 	glm::vec3 getForward() {
 		return forward;
 	}
+
+	glm::mat4 getTM() {
+		return TM;
+	}
+	glm::mat4 getSM() {
+
+		return SM;
+	}
     void update(){
 		if (pitch != 0){
 			RM = glm::rotate(RM,pitch*radians,glm::vec3(1,0,0));
