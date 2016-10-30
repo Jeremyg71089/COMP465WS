@@ -102,7 +102,7 @@ glm::mat4 tempMissileRM, tempMissileTM, tempMissileOM;
 
 //Calculate the distance between two points
 float getDistance(float x, float y, float z) {
-	return glm::sqrt(x*x + y + z*z);	
+	return glm::sqrt(x*x + y*y + z*z);	
 }
 
 void specialKeyEvent(int key, int x, int y)
