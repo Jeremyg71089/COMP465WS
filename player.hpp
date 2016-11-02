@@ -1,7 +1,6 @@
 
 # ifndef __INCLUDES465__
 # include "../includes465/include465.hpp"
-#include "glm/gtx/rotate_vector.hpp"
 # define __INCLUDES465__
 # endif
 
@@ -25,7 +24,8 @@ private:
 	glm::vec3 T;
 	glm::vec3 L;
 	float AORdirection;
-	bool isWarping = false;
+	bool isGravity = false;
+	float distance;
 
 public:
 
@@ -57,6 +57,9 @@ public:
 	}
 	glm::mat4 getOM() {
 		return OM;
+	}
+	void changeGravity() {
+		isGravity = !isGravity;
 	}
 	//function to warp
 	void warp(glm::mat4 p,glm::mat4 r, glm::vec3 t) {
@@ -121,6 +124,12 @@ public:
 		}
 		else if (roll != 0 ) {
 			RM = glm::rotate(RM, roll*radians, glm::vec3(0, 0, 1));
+		}
+		if (isGravity) {
+			distance = glm::distance(glm::vec3(0.0f),getPosition(OM));
+			float temp = 90000000.0f / (distance * distance);
+			glm::vec3 tempVec = glm::normalize( -1.0f * getPosition(OM));
+			TM = glm::translate(TM, temp * tempVec );
 		}
 		forward = getIn(OM) * (float)step * (float)stepDistance;
 		TM = glm::translate(TM, forward);

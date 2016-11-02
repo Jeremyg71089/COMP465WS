@@ -5,8 +5,6 @@ Warbird Simulation Phase 1
 // define your target operating system: __Windows__  __Linux__  __Mac__
 #define __Windows__ 
 #include "../includes465/include465.hpp"
-#include "Shape3D.hpp"
-#include "glm/gtx/rotate_vector.hpp"
 #include "player.hpp"
 #include "missile.hpp"
 
@@ -426,12 +424,7 @@ void keyboard(unsigned char key, int x, int y) {
 		break;
 
 	case 'g': case 'G': //Toggle gravity
-		if (gravity == true) {
-			gravity = false;
-		}
-		else {
-			gravity = true;
-		}
+		player->changeGravity();
 		break;
 
 	case 's': case 'S': //For next ship speed % nSpeeds

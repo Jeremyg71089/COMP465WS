@@ -1,7 +1,6 @@
 
 # ifndef __INCLUDES465__
 # include "../includes465/include465.hpp"
-#include "glm/gtx/rotate_vector.hpp"
 # define __INCLUDES465__
 # endif
 
