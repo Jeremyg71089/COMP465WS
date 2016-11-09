@@ -11,10 +11,13 @@ private:
 	bool isDetonated;
 	bool isCollided;
 	bool isSite;
+	bool targetSet = false;
+	int targetVal = -1;
 	int updates;
 	int step = 0;
 	int stepDistance = 0;
 	float angle = 0.0f;
+	glm::mat4 target;
 	glm::vec3 axis = glm::vec3(0.0f);
 	glm::vec3 forward = glm::vec3(0.0f);
     glm::mat4 RM = glm::mat4();
@@ -70,6 +73,46 @@ public:
 		}		
 	}
 
+
+	//Will take source OM, target1 OM, target2 OM
+	//Will return 0 if there is no target within range, 1 if first target is in range, and 
+	//2 if second target is within range
+	void setClosestTarget(glm::mat4 target1, glm::mat4 target2, int index1, int index2) {
+
+		float target1Distance = distance(getPosition(OM), getPosition(target1));
+		float target2Distance = distance(getPosition(OM), getPosition(target2));
+
+		if (target1Distance > 5000.0f && target2Distance > 5000.0f) {
+			
+		}
+		else if (target1Distance < target2Distance) {
+			target = target1;
+			targetSet = true;
+			targetVal = index1;
+		}
+		else if (target2Distance < target1Distance) {
+			target = target2;
+			targetSet = true;
+			targetVal = index2;
+		}
+	}
+
+	//Returns if target has been set
+	bool getTargetSet() {
+		return targetSet;
+	}
+
+	//Returns OM of target
+	glm::mat4 getTarget() {
+		return target;
+	}
+
+	//Returns which target has been set
+	int getTargetVal() {
+		return targetVal;
+	}
+
+
 	glm::mat4 getTM() {
 		return TM;
 	}
@@ -81,6 +124,12 @@ public:
 
 		return RM;
 	}
+
+	//Get distance
+	float getDistance(glm::vec3 pos1, glm::vec3 pos2) {
+		return glm::distance(pos1, pos2);
+	}
+
 	//Method to fire missile
 	bool getFired() {
 		return isFired;
@@ -91,14 +140,25 @@ public:
 		return isDetonated;
 	}
 
-	//Method to check if collided
-	bool collided() {
-		return isCollided;
-	}
 	//Need a fucntion to detect collisions
 
-	
+	void setVisible(bool visible) {
+		isVisible = visible;
+	}
 
+	bool getVisible() {
+		return isVisible;
+	}
+
+	//Check if there is a collision
+	bool checkCollision(glm::vec3 pos1, glm::vec3 pos2, float radius1, float radius2) {
+		//Check for collision, 
+		if (distance(pos1, pos2) <= (radius1 + radius2)) {
+			isCollided = true;
+			isVisible = false;
+		}
+		return isCollided;
+	}
 
 	//function to chase target
 	void faceTarget(glm::mat4 targetPos) {
@@ -114,7 +174,8 @@ public:
 
 		//cross product of T and L to get orthogonal vector 
 		//this is the axis of rotation
-		axis = glm::cross(T, L);
+
+		axis = glm::cross(T, L); //AOR
 
 		//normalize axis
 		axis = glm::normalize(axis);
@@ -123,12 +184,19 @@ public:
 		//acos gives the radians for rotation but only from 0 to PI
 		//however since glm::rotate adjust the rotation if the axis is negative
 		//it is not necessary to do anything to acos other than subtract it from 2PI
-		angle = (2.0f*PI) - acos(glm::dot(T,L));
+
+		if (colinear(T, L, 0.1f)) {
+			//showVec3("Axis", axis);
+			//printf("Colinear with missle \n");
+			angle = (2.0f*PI) - acos(glm::dot(T, L));			
+		}
+		else {
+			angle = (2.0f*PI) + acos(glm::dot(T, L));
+		}
 
 		//use the found rotational angle and axis to rotate the space ship
 		//we rotate it around the identity because we do not need take the current
 		//RM into account
-
 		RM = glm::rotate(RM, angle, axis);
 		OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 		
@@ -154,14 +222,20 @@ public:
 		return forward;
 	}
 
+
+
+
+
     void update(){
+
 		updates++;
+
+		//Check for max updates and detonate
 		if (updates == 2000) {
 			isDetonated = true;
+			isVisible = false;
 		}
 		
-		//put code to keep updating the missile to go after its target
-		//put code to detect if there is a collision
 		step++;
 		forward = getIn(OM) * (float)step * (float)stepDistance;
 		TM = glm::translate(TM, forward);

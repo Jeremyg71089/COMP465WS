@@ -90,6 +90,7 @@ public:
 		//we rotate it around the identity because we do not need take the current
 		//RM into account
 		RM = glm::rotate(glm::mat4(), angle, axis);
+		OM = TM * RM * SM;
 	}
 
 	glm::vec3 getPos() {
