@@ -43,7 +43,7 @@ GLuint MVP;  //Model View Projection matrix's handle
 GLuint vPosition[nModels], vColor[nModels], vNormal[nModels];   //vPosition, vColor, vNormal handles for models
 
 //Model, view, projection matrices and values to create modelMatrix.
-float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f, 150.0f,80.0f, 80.0f, 80.0f, 30.0f, 30.0f };   // size of model
+float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f, 150.0f,25.0f, 25.0f, 25.0f, 30.0f, 30.0f };   // size of model
 glm::vec3 scale[nModels];       // set in init() 
 glm::vec3 translate[nModels] = { 
 glm::vec3(5000.0f,1000.0f,5000.0f), //Spaceship
@@ -211,16 +211,16 @@ void display() {
 	for (int m = 0; m < nModels; m++) {
 		
 		//See if I can clean this logic up -Scott
-		if (m == 6 && !warbirdMissiles[currentWarbirdMissile]->getVisible()) {			
+		//if (m == 6 && !warbirdMissiles[currentWarbirdMissile]->getVisible()) {			
 
-		}
-		else if (m == 7 && !unumMissiles[currentUnumMissile]->getVisible()) {
+		//}
+		//else if (m == 7 && !unumMissiles[currentUnumMissile]->getVisible()) {
 
-		}
-		else if (m == 8 && !secundusMissiles[currentSecundusMissile]->getVisible()) {
+		//}
+		//else if (m == 8 && !secundusMissiles[currentSecundusMissile]->getVisible()) {
 
-		}
-		else {
+		//}
+		//else {
 			//Set the view matrix here so cameras can be dynamic
 			viewMatrix = camera[currentCamera];
 
@@ -229,7 +229,7 @@ void display() {
 			glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
 			glBindVertexArray(VAO[m]);
 			glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
-		}
+		/*}*/
 	}
 		
 	glutSwapBuffers();
@@ -251,8 +251,9 @@ void display() {
 }
 
 
-void update(void) {
-
+void update(int i) {
+	//Review this Scott
+	glutTimerFunc(timerDelay, update, 1);
 	player->update();
 
 	//Create rotation matrices for each model
@@ -274,16 +275,10 @@ void update(void) {
 
 				//Check if warbird missile fired, if so then keep it updated until it collides or detonates
 				if (warbirdMissiles[currentWarbirdMissile]->getFired()) {
-
-					//Set the closest target within 5000.0f range from center
-					warbirdMissiles[currentWarbirdMissile]->setClosestTarget(modelMatrix[2], modelMatrix[5], 2, 5);
-
-					/*
-					Need to fix the above code and add logic so that only a missile site that is not destroyed is set as a target
-					*/
 					
-					//Determine if target has been set to a missle site and if so chase it
+					//Determine if target has been set to a missle site and if so chase it numUpdates > 200 && 
 					if (warbirdMissiles[currentWarbirdMissile]->getTargetSet()) {
+						warbirdMissiles[currentWarbirdMissile]->updateTargetPos(modelMatrix[warbirdMissiles[currentWarbirdMissile]->getTargetVal()]);
 						warbirdMissiles[currentWarbirdMissile]->faceTarget(warbirdMissiles[currentWarbirdMissile]->getTarget());
 					}
 
@@ -304,7 +299,7 @@ void update(void) {
 
 					if (targetIndex != -1) {
 						//If there is a collision then get rid of the missle and move to the next
-						if (warbirdMissiles[currentWarbirdMissile]->checkCollision(getPosition(warbirdMissiles[currentWarbirdMissile]->getOM()), getPosition(warbirdMissiles[currentWarbirdMissile]->getTarget()), modelBR[m], modelBR[targetIndex]) && currentWarbirdMissile < warbirdMissilesTotal) {
+						if (warbirdMissiles[currentWarbirdMissile]->checkCollision(getPosition(warbirdMissiles[currentWarbirdMissile]->getOM()), getPosition(modelMatrix[targetIndex]), 25.0f, 30.f) && currentWarbirdMissile < warbirdMissilesTotal) {
 
 							//See if there is a way to avoid this duplicate code - Scott
 							warbirdMissiles[currentWarbirdMissile + 1]->setRM(player->getRM());
@@ -343,7 +338,7 @@ void update(void) {
 					
 					//Check to see if the spaceship is within detection for the two missile sites
 					//If so then fire a missile at the spaceship from unum's missile base
-					if (unumMissiles[m]->getDistance(getPosition(modelMatrix[0]), getPosition(modelMatrix[m])) <= 5000.0f) {
+					//if (unumMissiles[m]->getDistance(getPosition(modelMatrix[0]), getPosition(modelMatrix[m])) <= 5000.0f) {
 
 					/*
 					Need to add code here like above to shoot at the at the ship if it's within range and track it until it detonates
@@ -352,7 +347,7 @@ void update(void) {
 					What to do here about warping?? Ask the Professor.
 					*/
 
-					}
+					//}
 				}
 
 				modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
@@ -366,7 +361,7 @@ void update(void) {
 
 					//If so then fire a missile at the spaceship from secundus' missile base
 					//Spaceship pos - Secundus missile site position
-					if (secundusMissiles[m]->getDistance(getPosition(modelMatrix[0]), getPosition(modelMatrix[m])) <= 5000.0f) {
+					//if (secundusMissiles[m]->getDistance(getPosition(modelMatrix[0]), getPosition(modelMatrix[m])) <= 5000.0f) {
 
 						/*
 						Need to add code here like above to shoot at the at the ship if it's within range and track it until it detonates
@@ -374,7 +369,7 @@ void update(void) {
 
 						What to do here about warping?? Ask the Professor.
 						*/
-					}
+					//}
 				}
 				
 				modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
@@ -398,14 +393,8 @@ void update(void) {
 	camera[4] = camera[4] * (lastOMDuo * glm::inverse(modelMatrix[3]));
 	lastOMDuo = modelMatrix[3];
 	
-	numUpdates++; //Keep track of updates
-	glutPostRedisplay();
-}
-
-//Estimate FPS, use for fixed interval timer driven animation
-void intervalTimer(int i) { 
-	glutTimerFunc(timerDelay, intervalTimer, 1);
-	if (!idleTimerFlag) update();  // fixed interval timer
+	numUpdates++; //Keep track of missile updates
+	//glutPostRedisplay();
 }
 
 //pressing v adds one to the index 
@@ -422,6 +411,7 @@ void keyboard(unsigned char key, int x, int y) {
 		//If in cadet mode, the current fired missile must detonate or collide before firing again
 		if (!warbirdMissiles[currentWarbirdMissile]->getFired() && currentWarbirdMissile < warbirdMissilesTotal) {			 
 			warbirdMissiles[currentWarbirdMissile]->fireMissile();
+			warbirdMissiles[currentWarbirdMissile]->setClosestTarget(modelMatrix[7], modelMatrix[8], 7, 8);
 			warbirdMissileCount--;				
 		} 
 		break;
@@ -490,7 +480,6 @@ void keyboard(unsigned char key, int x, int y) {
 		else if (currentCamera == 4){ strcpy(viewStr, "Duo");}
 
 	updateTitle();
-	//glutPostRedisplay();
 }
 
 int main(int argc, char* argv[]) {
@@ -541,7 +530,7 @@ int main(int argc, char* argv[]) {
 
 	
 	//I still need to see exactly what we need to update here
-	glutTimerFunc(timerDelay, intervalTimer, 1);
+	glutTimerFunc(timerDelay, update, 1);
 	glutIdleFunc(display);
 	glutMainLoop();
 	printf("done\n");

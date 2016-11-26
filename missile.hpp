@@ -26,7 +26,7 @@ private:
 	glm::mat4 SM = glm::mat4();
 	glm::vec3 position;
 	glm::vec3 T;
-	glm::vec3 L;
+	glm::vec3 L;  
 	float AORdirection;
 	bool isWarping = false;
 
@@ -83,7 +83,7 @@ public:
 		float target2Distance = distance(getPosition(OM), getPosition(target2));
 
 		if (target1Distance > 5000.0f && target2Distance > 5000.0f) {
-			
+
 		}
 		else if (target1Distance < target2Distance) {
 			target = target1;
@@ -107,6 +107,10 @@ public:
 		return target;
 	}
 
+	void updateTargetPos(glm::mat4 targetPos) {
+		target = targetPos;
+	}
+
 	//Returns which target has been set
 	int getTargetVal() {
 		return targetVal;
@@ -118,7 +122,7 @@ public:
 	}
 
 	void setTM(glm::mat4 inTM) {
-		 TM = inTM;
+		TM = inTM;
 	}
 	glm::mat4 getRM() {
 
@@ -156,50 +160,50 @@ public:
 		if (distance(pos1, pos2) <= (radius1 + radius2)) {
 			isCollided = true;
 			isVisible = false;
+			isDetonated = true;
 		}
 		return isCollided;
 	}
 
 	//function to chase target
-	void faceTarget(glm::mat4 targetPos) {
+	void faceTarget(glm::mat4 target) {
 		//Get the looking at vector from the the chaser
-		L = getIn(OM);
+		L = glm::normalize(getIn(OM));
 
 		//Get distance between the target and chaser
-		T = getPosition(targetPos) - getPosition(OM);
+		T = glm::normalize(getPosition(target) - getPosition(OM));
 
-		//normalize both vectors
-		T = glm::normalize(T);
-		L = glm::normalize(L);
+		if (colinear(L, T, 0.1f)) {
+			float CLATtoE = getDistance(getPosition(OM) + getIn(OM), getPosition(target));
+			float CtoE = getDistance(getPosition(OM), getPosition(target));
 
-		//cross product of T and L to get orthogonal vector 
-		//this is the axis of rotation
-
-		axis = glm::cross(T, L); //AOR
-
-		//normalize axis
-		axis = glm::normalize(axis);
-
-		//to determine the direction of the rotation
-		//acos gives the radians for rotation but only from 0 to PI
-		//however since glm::rotate adjust the rotation if the axis is negative
-		//it is not necessary to do anything to acos other than subtract it from 2PI
-
-		if (colinear(T, L, 0.1f)) {
-			//showVec3("Axis", axis);
-			//printf("Colinear with missle \n");
-			angle = (2.0f*PI) - acos(glm::dot(T, L));			
+			if (CtoE < CLATtoE) {
+				//axis = glm::normalize(glm::cross(T, getRight(OM)));
+				RM = glm::rotate(glm::mat4(), PI, getUp(OM));
+			}
+			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 		}
 		else {
-			angle = (2.0f*PI) + acos(glm::dot(T, L));
+			axis = glm::normalize(glm::cross(T, L)); //AOR
+			AORdirection = axis.x + axis.y + axis.z;
+			if (AORdirection >= 0) {
+				angle = glm::clamp(acos(glm::dot(T, L)), -1.0f, 1.0f);
+			}
+			else {
+				angle = (2 * PI) - glm::clamp(acos(glm::dot(T, L)), -1.0f, 1.0f);
+			}
+
+			//angle = (2 * PI) - glm::clamp(acos(glm::dot(T, L)), -1.0f, 1.0f);
+			if (getDistance(getPosition(OM), getPosition(target)) > 0.5f){
+				RM = glm::rotate(glm::mat4(), angle, axis);
+			}
+			//RM = glm::rotate(RM, angle, axis);
+			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 		}
 
-		//use the found rotational angle and axis to rotate the space ship
-		//we rotate it around the identity because we do not need take the current
-		//RM into account
-		RM = glm::rotate(RM, angle, axis);
-		OM = glm::translate(TM, getPosition(OM)) * RM * SM;
-		
+		//OM = TM * RM * SM;
+		//OM = glm::translate(TM, getPosition(OM)) * RM * SM;
+
 	}
 
 	glm::vec3 getPos() {
@@ -231,7 +235,7 @@ public:
 		updates++;
 
 		//Check for max updates and detonate
-		if (updates == 2000) {
+		if (!targetSet && updates == 2000) {
 			isDetonated = true;
 			isVisible = false;
 		}
