@@ -93,7 +93,7 @@ char titleStr[100], fpsStr[5] = { '0' }, timerStr[5] = { '0' };
 
 //Missile variables
 const int warbirdMissilesTotal = 9, unumMissilesTotal = 5, secundusMissilesTotal = 5;
-bool warbirdDestroyed = false, unumDestroyed = false, secundusDestroyed = false;
+bool warbirdDestroyed = false;
 int missileUpdates = 0, numUpdates = 0;
 int currentWarbirdMissile = 0, currentUnumMissile = 0, currentSecundusMissile = 0;
 Missile *warbirdMissiles[warbirdMissilesTotal], *unumMissiles[unumMissilesTotal], *secundusMissiles[secundusMissilesTotal];
@@ -202,52 +202,55 @@ void updateTitle() {
 
 //Method to display items in window
 void display() {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	//Change background to black
-	glClearColor(0, 0, 0, 0);
 
-	//Update model matrix
-	for (int m = 0; m < nModels; m++) {
-		
-		//See if I can clean this logic up -Scott
-		//if (m == 6 && !warbirdMissiles[currentWarbirdMissile]->getVisible()) {			
+	if (!unumSiteDestroyed || !secundusSiteDestroyed) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//}
-		//else if (m == 7 && !unumMissiles[currentUnumMissile]->getVisible()) {
+		//Change background to black
+		glClearColor(0, 0, 0, 0);
 
-		//}
-		//else if (m == 8 && !secundusMissiles[currentSecundusMissile]->getVisible()) {
+		//Update model matrix
+		for (int m = 0; m < nModels; m++) {
 
-		//}
-		//else {
-			//Set the view matrix here so cameras can be dynamic
-			viewMatrix = camera[currentCamera];
+			//See if I can clean this logic up -Scott
+			if (m == 6 && !warbirdMissiles[currentWarbirdMissile]->getVisible()) {
 
-			//glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr( modelMatrix)); 
-			ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix[m];
-			glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
-			glBindVertexArray(VAO[m]);
-			glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
-		/*}*/
+			}
+			else if (m == 7 && !unumMissiles[currentUnumMissile]->getVisible()) {
+
+			}
+			else if (m == 8 && !secundusMissiles[currentSecundusMissile]->getVisible()) {
+
+
+			}
+			else {
+				//Set the view matrix here so cameras can be dynamic
+				viewMatrix = camera[currentCamera];
+
+				//glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr( modelMatrix)); 
+				ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix[m];
+				glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
+				glBindVertexArray(VAO[m]);
+				glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
+			}
+		}
+
+		glutSwapBuffers();
+		frameCount++;
+
+		//See if a second has passed to set estimated fps information
+		currentTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
+		timeInterval = currentTime - lastTime;
+
+		if (timeInterval >= 1000) {
+			sprintf(fpsStr, "%4d", (int)(frameCount / (timeInterval / 1000.0f)));
+			if (idleTimerFlag)
+				sprintf(timerStr, "%s", fpsStr);
+			lastTime = currentTime;
+			frameCount = 0;
+			updateTitle();
+		}
 	}
-		
-	glutSwapBuffers();
-	frameCount++;
-
-	//See if a second has passed to set estimated fps information
-	currentTime = glutGet(GLUT_ELAPSED_TIME);  // get elapsed system time
-	timeInterval = currentTime - lastTime;
-
-	if (timeInterval >= 1000) {
-		sprintf(fpsStr, "%4d", (int)(frameCount / (timeInterval / 1000.0f)));
-		if (idleTimerFlag)
-			sprintf(timerStr,"%s",fpsStr);
-		lastTime = currentTime;
-		frameCount = 0;
-		updateTitle();
-	}
-	
 }
 
 
@@ -297,7 +300,7 @@ void update(int i) {
 
 					int targetIndex = warbirdMissiles[currentWarbirdMissile]->getTargetVal();
 
-					if (targetIndex != -1) {
+					if (targetIndex == 9 || targetIndex == 10) {
 						//If there is a collision then get rid of the missle and move to the next
 						if (warbirdMissiles[currentWarbirdMissile]->checkCollision(getPosition(warbirdMissiles[currentWarbirdMissile]->getOM()), getPosition(modelMatrix[targetIndex]), 25.0f, 30.f) && currentWarbirdMissile < warbirdMissilesTotal) {
 
@@ -309,13 +312,19 @@ void update(int i) {
 							currentWarbirdMissile++;
 
 							//Mark missile site as destroyed
-							if (targetIndex == 2) {
-								unumDestroyed = true;
+							if (targetIndex == 9) {
+								unumSiteDestroyed = true;
+								printf("Unum Destroyed");
 							}
-							else if (targetIndex == 5) {
-								secundusDestroyed = true;
+							else if (targetIndex == 10) {
+								secundusSiteDestroyed = true;
+								printf("Secundus Destroyed");
 							}
 						}
+					}
+					
+					if (unumSiteDestroyed && secundusSiteDestroyed) {
+						updateTitle();
 					}
 				}
 				else if (!warbirdMissiles[currentWarbirdMissile]->getFired()) {
@@ -331,14 +340,57 @@ void update(int i) {
 			
 		} else if (m == 7) { //Unum missile object index
 
-			if (!unumDestroyed) {
+			if (!unumSiteDestroyed) {
 				
 				//Activate missile defense sites after 200 updates
-				if (numUpdates > 200 || currentUnumMissile < unumMissilesTotal) {
+				if (numUpdates > 200 && currentUnumMissile < unumMissilesTotal) {
 					
 					//Check to see if the spaceship is within detection for the two missile sites
 					//If so then fire a missile at the spaceship from unum's missile base
-					//if (unumMissiles[m]->getDistance(getPosition(modelMatrix[0]), getPosition(modelMatrix[m])) <= 5000.0f) {
+					if (unumMissiles[m]->getDistance(getPosition(modelMatrix[0]), getPosition(modelMatrix[m])) <= 5000.0f) {
+
+						if (!unumMissiles[currentUnumMissile]->getFired()) {
+							unumMissiles[currentUnumMissile]->fireMissile();
+							unumMissileCount--;
+							unumMissiles[currentUnumMissile]->setClosestTarget(modelMatrix[0]);
+							
+							//Move the missile forward
+							unumMissiles[currentUnumMissile]->update();
+						}
+						else {
+
+							//Move the missile forward
+							unumMissiles[currentUnumMissile]->update();
+
+							unumMissiles[currentUnumMissile]->updateTargetPos(modelMatrix[0]);
+							unumMissiles[currentUnumMissile]->faceTarget(modelMatrix[0]);
+							
+
+							//If missile detonated and there are more missles available, then put the next missile in the ship's position
+							if (unumMissiles[currentUnumMissile]->detonated() && currentUnumMissile < unumMissilesTotal) {
+
+								unumMissiles[currentUnumMissile + 1]->setRM(rotation[7]);
+								unumMissiles[currentUnumMissile + 1]->setTM(glm::translate(identity, translate[7]));
+
+								glm::mat4 tempOM = unumMissiles[currentUnumMissile + 1]->getTM() * unumMissiles[currentUnumMissile + 1]->getRM()  * unumMissiles[currentUnumMissile + 1]->getSM();
+								unumMissiles[currentUnumMissile + 1]->setOM(tempOM);
+								currentUnumMissile++;
+							}
+
+							//Add Code to check for a collision
+							//if (warbirdMissiles[currentWarbirdMissile]->checkCollision(getPosition(warbirdMissiles[currentWarbirdMissile]->getOM()), getPosition(modelMatrix[targetIndex]), 25.0f, 30.f) && currentWarbirdMissile < warbirdMissilesTotal) {
+
+							//}
+
+						}
+
+
+
+
+
+
+
+
 
 					/*
 					Need to add code here like above to shoot at the at the ship if it's within range and track it until it detonates
@@ -347,7 +399,7 @@ void update(int i) {
 					What to do here about warping?? Ask the Professor.
 					*/
 
-					//}
+					}
 				}
 
 				modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
@@ -355,9 +407,9 @@ void update(int i) {
 			
 		} else if (m == 8) { //Secundus missile object
 
-			if (!secundusDestroyed) {
+			if (!secundusSiteDestroyed) {
 				//Activate missile defense sites after 200 updates
-				if (numUpdates > 200 || currentSecundusMissile < secundusMissilesTotal) {
+				if (numUpdates > 200 && currentSecundusMissile < secundusMissilesTotal) {
 
 					//If so then fire a missile at the spaceship from secundus' missile base
 					//Spaceship pos - Secundus missile site position
@@ -411,7 +463,7 @@ void keyboard(unsigned char key, int x, int y) {
 		//If in cadet mode, the current fired missile must detonate or collide before firing again
 		if (!warbirdMissiles[currentWarbirdMissile]->getFired() && currentWarbirdMissile < warbirdMissilesTotal) {			 
 			warbirdMissiles[currentWarbirdMissile]->fireMissile();
-			warbirdMissiles[currentWarbirdMissile]->setClosestTarget(modelMatrix[7], modelMatrix[8], 7, 8);
+			warbirdMissiles[currentWarbirdMissile]->setClosestTarget(modelMatrix[9], modelMatrix[10], 9, 10, unumSiteDestroyed, secundusSiteDestroyed);
 			warbirdMissileCount--;				
 		} 
 		break;

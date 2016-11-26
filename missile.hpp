@@ -77,25 +77,34 @@ public:
 	//Will take source OM, target1 OM, target2 OM
 	//Will return 0 if there is no target within range, 1 if first target is in range, and 
 	//2 if second target is within range
-	void setClosestTarget(glm::mat4 target1, glm::mat4 target2, int index1, int index2) {
+	void setClosestTarget(glm::mat4 target1, glm::mat4 target2, int index1, int index2, boolean target1Des, boolean target2Des ) {
 
 		float target1Distance = distance(getPosition(OM), getPosition(target1));
 		float target2Distance = distance(getPosition(OM), getPosition(target2));
 
+		
 		if (target1Distance > 5000.0f && target2Distance > 5000.0f) {
 
 		}
-		else if (target1Distance < target2Distance) {
+		else if (target1Distance < target2Distance && !target1Des) {
 			target = target1;
 			targetSet = true;
 			targetVal = index1;
 		}
-		else if (target2Distance < target1Distance) {
+		else if (target2Distance < target1Distance && !target2Des) {
 			target = target2;
 			targetSet = true;
 			targetVal = index2;
 		}
 	}
+
+	//Will set target to ship
+	void setClosestTarget(glm::mat4 target1) {
+		target = target1;
+		targetSet = true;
+		targetVal = 0;
+	}
+
 
 	//Returns if target has been set
 	bool getTargetSet() {
@@ -178,19 +187,24 @@ public:
 			float CtoE = getDistance(getPosition(OM), getPosition(target));
 
 			if (CtoE < CLATtoE) {
-				RM = glm::rotate(glm::mat4(), PI, getUp(OM));
+				axis = glm::normalize(glm::cross(T, getUp(OM))); //AOR
+				angle = PI + acos(glm::dot(T, L));
+				RM = glm::rotate(RM, angle, axis);
 			}
 			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 		}
 		else {
 			axis = glm::normalize(glm::cross(T, L)); //AOR
-			angle = (2 * PI) - glm::clamp(acos(glm::dot(T, L)), -1.0f, 1.0f);
-			if (getDistance(getPosition(OM), getPosition(target)) > 0.1f){
-				RM = glm::rotate(glm::mat4(), angle, axis);
-			}
+			angle = acos(glm::dot(T, L));
 
+			if (getDistance(getPosition(OM), getPosition(target)) > 0.5f){
+				angle = (2 * PI) - acos(glm::dot(T, L));
+				RM = glm::rotate(RM, angle, axis);
+			}
 			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 		}
+
+		
 	}
 
 	glm::vec3 getPos() {
