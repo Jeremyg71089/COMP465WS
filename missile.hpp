@@ -178,32 +178,19 @@ public:
 			float CtoE = getDistance(getPosition(OM), getPosition(target));
 
 			if (CtoE < CLATtoE) {
-				//axis = glm::normalize(glm::cross(T, getRight(OM)));
 				RM = glm::rotate(glm::mat4(), PI, getUp(OM));
 			}
 			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 		}
 		else {
 			axis = glm::normalize(glm::cross(T, L)); //AOR
-			AORdirection = axis.x + axis.y + axis.z;
-			if (AORdirection >= 0) {
-				angle = glm::clamp(acos(glm::dot(T, L)), -1.0f, 1.0f);
-			}
-			else {
-				angle = (2 * PI) - glm::clamp(acos(glm::dot(T, L)), -1.0f, 1.0f);
-			}
-
-			//angle = (2 * PI) - glm::clamp(acos(glm::dot(T, L)), -1.0f, 1.0f);
-			if (getDistance(getPosition(OM), getPosition(target)) > 0.5f){
+			angle = (2 * PI) - glm::clamp(acos(glm::dot(T, L)), -1.0f, 1.0f);
+			if (getDistance(getPosition(OM), getPosition(target)) > 0.1f){
 				RM = glm::rotate(glm::mat4(), angle, axis);
 			}
-			//RM = glm::rotate(RM, angle, axis);
+
 			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 		}
-
-		//OM = TM * RM * SM;
-		//OM = glm::translate(TM, getPosition(OM)) * RM * SM;
-
 	}
 
 	glm::vec3 getPos() {
