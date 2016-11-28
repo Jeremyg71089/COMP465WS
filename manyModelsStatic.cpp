@@ -80,7 +80,7 @@ char titleStr[100], fpsStr[5] = { '0' }, timerStr[5] = { '0' };
 
 //Missile variables
 const int wMissilesTtl = 9, uMissilesTtl = 5, sMissilesTtl = 5;
-bool wDestroyed = false, uMissilesOut = true, sMissilesOut = true;
+bool wDestroyed = false, uMissilesOut = false, sMissilesOut = true;
 int missileUpdates = 0, numUpdates = 0;
 int currWMissile = 0, currUMissile = 0, currSMissile = 0;
 Missile *wMissile, *uMissile, *sMissile;
