@@ -51,6 +51,26 @@ public:
 		//RM = glm::rotate(RM, 0.0f, glm::vec3(0, 1, 0));
 		OM = TM * RM * SM;
 	}
+
+	Missile(glm::vec3 scale, bool site) {
+		isVisible = false;
+		isFired = false;
+		isDetonated = false;
+		isCollided = false;
+		isSite = site;
+		if (site) {
+			stepDistance = 5;
+		}
+		else {
+			stepDistance = 20;
+		}
+		updates = 0;
+		//position = translate;
+		//TM = glm::translate(TM, translate);
+		SM = glm::scale(glm::mat4(), scale);
+		//RM = glm::rotate(RM, 0.0f, glm::vec3(0, 1, 0));
+		OM = TM * RM * SM;
+	}
 	
 	glm::mat4 getOM() {
 		return OM;
@@ -65,45 +85,10 @@ public:
 		RM = inputRM;
 	}
 
-	//Method to fire missile
-	void fireMissile() {
-		if (isFired == false && isDetonated == false) {
-			isFired = true;
-			isVisible = true;
-		}		
-	}
 
 
-	//Will take source OM, target1 OM, target2 OM
-	//Will return 0 if there is no target within range, 1 if first target is in range, and 
-	//2 if second target is within range
-	void setClosestTarget(glm::mat4 target1, glm::mat4 target2, int index1, int index2, boolean target1Des, boolean target2Des ) {
 
-		float target1Distance = distance(getPosition(OM), getPosition(target1));
-		float target2Distance = distance(getPosition(OM), getPosition(target2));
-
-		
-		if (target1Distance > 5000.0f && target2Distance > 5000.0f) {
-
-		}
-		else if (target1Distance < target2Distance && !target1Des) {
-			target = target1;
-			targetSet = true;
-			targetVal = index1;
-		}
-		else if (target2Distance < target1Distance && !target2Des) {
-			target = target2;
-			targetSet = true;
-			targetVal = index2;
-		}
-	}
-
-	//Will set target to ship
-	void setClosestTarget(glm::mat4 target1) {
-		target = target1;
-		targetSet = true;
-		targetVal = 0;
-	}
+	
 
 
 	//Returns if target has been set
@@ -114,6 +99,11 @@ public:
 	//Returns OM of target
 	glm::mat4 getTarget() {
 		return target;
+	}
+
+	//Returns OM of target
+	glm::mat4 setTarget(glm::mat4 targetIn) {
+		target = targetIn;
 	}
 
 	void updateTargetPos(glm::mat4 targetPos) {
@@ -138,6 +128,7 @@ public:
 		return RM;
 	}
 
+	//Maybe delete since glm has this
 	//Get distance
 	float getDistance(glm::vec3 pos1, glm::vec3 pos2) {
 		return glm::distance(pos1, pos2);
@@ -163,9 +154,52 @@ public:
 		return isVisible;
 	}
 
+	//Method to fire missile
+	void fireMissile() {
+		if (isFired == false && isDetonated == false) {
+			isFired = true;
+			isVisible = true;
+		}
+	}
+
+	//Will take source OM, target1 OM, target2 OM
+	//Will return 0 if there is no target within range, 1 if first target is in range, and 	2 if second target is within range 
+	void setClosestTarget(glm::mat4 target1, glm::mat4 target2, int index1, int index2, boolean target1Des, boolean target2Des) {
+
+		float target1Distance = distance(getPosition(OM), getPosition(target1));
+		float target2Distance = distance(getPosition(OM), getPosition(target2));
+
+		if (target1Distance <= 5000.0f || target2Distance <= 5000.0f) {
+			 if (target1Distance < target2Distance && !target1Des) {
+				target = target1;
+				targetSet = true;
+				targetVal = index1;
+			 }
+			else if (target2Distance < target1Distance && !target2Des) {
+				target = target2;
+				targetSet = true;
+				targetVal = index2;
+			}
+		}
+
+	}
+
+	//Will set target to ship
+	void setClosestTarget(glm::mat4 target1) {
+
+		float targetDistance = distance(getPosition(OM), getPosition(target1));
+
+		if (targetDistance <= 5000.0f) {
+			target = target1;
+			targetSet = true;
+			targetVal = 0;
+			isFired = true;
+		}
+	}
+
 	//Check if there is a collision
 	bool checkCollision(glm::vec3 pos1, glm::vec3 pos2, float radius1, float radius2) {
-		//Check for collision, 
+		 
 		if (distance(pos1, pos2) <= (radius1 + radius2)) {
 			isCollided = true;
 			isVisible = false;
@@ -202,11 +236,39 @@ public:
 				RM = glm::rotate(RM, angle, axis);
 			}
 			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
-		}
-
-		
+		}		
 	}
 
+	//function to chase target
+	void faceShip(glm::mat4 target) {
+		//Get the looking at vector from the the chaser
+		L = glm::normalize(getIn(OM));
+
+		//Get distance between the target and chaser
+		T = glm::normalize(getPosition(target) - getPosition(OM));
+
+		if (colinear(L, T, 0.1f)) {
+			float CLATtoE = getDistance(getPosition(OM) + getIn(OM), getPosition(target));
+			float CtoE = getDistance(getPosition(OM), getPosition(target));
+
+			if (CtoE < CLATtoE) {
+				axis = glm::normalize(glm::cross(T, getUp(OM))); //AOR
+				angle = PI + acos(glm::dot(T, L));
+				RM = glm::rotate(RM, angle, axis);
+			}
+			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
+		}
+		else {
+			axis = glm::normalize(glm::cross(T, L)); //AOR
+			angle = acos(glm::dot(T, L));
+
+			if (getDistance(getPosition(OM), getPosition(target)) > 0.5f) {
+				angle = (2 * PI) - acos(glm::dot(T, L));
+				RM = glm::rotate(RM, angle, axis);
+			}
+			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
+		}
+	}
 	glm::vec3 getPos() {
 		return position;
 	}
@@ -232,11 +294,11 @@ public:
 
 
     void update(){
-
+		
 		updates++;
-
+		
 		//Check for max updates and detonate
-		if (!targetSet && updates == 2000) {
+		if (updates == 2000) {
 			isDetonated = true;
 			isVisible = false;
 		}
@@ -247,6 +309,24 @@ public:
 		OM = TM * RM * SM;
 		step = 0;
     }
+
+	void updateShip() {
+
+		updates++;
+
+		//Check for max updates and detonate
+		if (updates == 2000) {
+			isDetonated = true;
+			isVisible = false;
+		}
+
+		step++;
+		forward = getIn(OM) * (float)step * (float)stepDistance;
+		TM = glm::translate(TM, forward);
+		OM = TM * RM * glm::scale(glm::mat4(), glm::vec3(20.478f));
+		
+		step = 0;
+	}
 };
 
 
