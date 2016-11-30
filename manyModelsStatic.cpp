@@ -35,7 +35,7 @@ GLuint MVP;  //Model View Projection matrix's handle
 GLuint vPosition[nModels], vColor[nModels], vNormal[nModels];   //vPosition, vColor, vNormal handles for models
 
 //Model, view, projection matrices and values to create modelMatrix.
-float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f, 150.0f,25.0f, 25.0f, 25.0f, 30.0f, 30.0f };   // size of model
+float modelSize[nModels] = { 100.0f,2000.0f,200.0f,400.0f,100.0f, 150.0f,50.0f, 25.0f, 25.0f, 30.0f, 30.0f };   // size of model
 glm::vec3 scale[nModels];       // set in init() 
 glm::vec3 translate[nModels] = { 
 glm::vec3(5000.0f,1000.0f,5000.0f), //Spaceship
@@ -80,7 +80,7 @@ char titleStr[100], fpsStr[5] = { '0' }, timerStr[5] = { '0' };
 
 //Missile variables
 const int wMissilesTtl = 9, uMissilesTtl = 5, sMissilesTtl = 5;
-bool wDestroyed = false, uMissilesOut = false, sMissilesOut = true;
+bool wDestroyed = false, uMissilesOut = true, sMissilesOut = true;
 int missileUpdates = 0, numUpdates = 0;
 int currWMissile = 0, currUMissile = 0, currSMissile = 0;
 Missile *wMissile, *uMissile, *sMissile;
@@ -350,8 +350,8 @@ void update(int i) {
 				}
 
 				//Move the missile forward
-				uMissile->updateShip();
-				//modelMatrix[m] = uMissile->getOM();
+				uMissile->update();
+				modelMatrix[m] = uMissile->getOM();
 
 				//If missile detonated and there are more missles available, then put the next missile in the ship's position
 				if (uMissile->detonated()) {

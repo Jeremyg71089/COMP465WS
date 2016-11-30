@@ -222,20 +222,19 @@ public:
 
 			if (CtoE < CLATtoE) {
 				axis = glm::normalize(glm::cross(T, getUp(OM))); //AOR
-				angle = PI + acos(glm::dot(T, L));
-				RM = glm::rotate(RM, angle, axis);
+				RM = glm::rotate(RM, PI, axis);
+				OM = glm::translate(TM, getPosition(OM)) * RM * SM;
 			}
-			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
+			
 		}
 		else {
 			axis = glm::normalize(glm::cross(T, L)); //AOR
-			angle = acos(glm::dot(T, L));
-
-			if (getDistance(getPosition(OM), getPosition(target)) > 0.5f){
+						
+			if (getDistance(getPosition(OM), getPosition(target)) > 0.5f) {
 				angle = (2 * PI) - acos(glm::dot(T, L));
 				RM = glm::rotate(RM, angle, axis);
-			}
-			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
+				OM = glm::translate(TM, getPosition(OM)) * RM * SM;
+			}			
 		}		
 	}
 
