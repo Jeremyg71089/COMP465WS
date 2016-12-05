@@ -466,12 +466,12 @@ void update(int i) {
 			modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		}
 	}
-
-	//matrix subtraction: find the difference between the last orientation matrix and the current one of warship
-	//then take that difference and multiply it with the camera matrix so the camera follows it 
-	camera[2] = camera[2] * (lastOMShip * glm::inverse(player->getOM()));
-	lastOMShip = player->getOM();
-
+	if (currentCamera == 2) {
+		//matrix subtraction: find the difference between the last orientation matrix and the current one of warship
+		//then take that difference and multiply it with the camera matrix so the camera follows it 
+		camera[2] = camera[2] * (lastOMShip * glm::inverse(player->getOM()));
+		lastOMShip = player->getOM();
+	}
 	//Using rotations to calculate the position and look at of the camera
 	camera[3] = camera[3] * (lastOMUnum * glm::inverse(modelMatrix[2]));
 	lastOMUnum = modelMatrix[2];
