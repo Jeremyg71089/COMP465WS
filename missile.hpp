@@ -6,17 +6,22 @@
 
 class Missile{
 private:
-	bool isVisible;
-	bool isFired;
-	bool isDetonated;
-	bool isCollided;
+	bool isLive = false;
+	bool noMore = false;
+	bool isVisible = false;
+	bool isFired = false;
+	bool isDetonated = false;
+	bool isCollided = false;
+	bool isTracking = false;
 	bool isSite;
 	bool targetSet = false;
+	bool hitTarget = false;
 	int targetVal = -1;
 	int updates;
 	int step = 0;
 	int stepDistance = 0;
 	float angle = 0.0f;
+	int amount;
 	glm::mat4 target;
 	glm::vec3 axis = glm::vec3(0.0f);
 	glm::vec3 forward = glm::vec3(0.0f);
@@ -32,32 +37,9 @@ private:
 
 public:
 
-	Missile(glm::vec3 translate , glm::vec3 scale, bool site) {
-		isVisible = false;
-		isFired = false;
-		isDetonated = false;
-		isCollided = false;
+	Missile(glm::vec3 translate , glm::vec3 scale, bool site, int a) {
 		isSite = site;
-		if (site) {
-			stepDistance = 5;
-		}
-		else {
-			stepDistance = 20;
-		}
-		updates = 0;
-		position = translate;
-		TM = glm::translate(TM, translate);
-		SM = glm::scale(glm::mat4(), scale);
-		//RM = glm::rotate(RM, 0.0f, glm::vec3(0, 1, 0));
-		OM = TM * RM * SM;
-	}
-
-	Missile(glm::vec3 scale, bool site) {
-		isVisible = false;
-		isFired = false;
-		isDetonated = false;
-		isCollided = false;
-		isSite = site;
+		amount = a;
 		if (site) {
 			stepDistance = 5;
 		}
@@ -66,12 +48,12 @@ public:
 		}
 		updates = 0;
 		//position = translate;
-		//TM = glm::translate(TM, translate);
+		TM = glm::translate(TM, translate);
 		SM = glm::scale(glm::mat4(), scale);
 		//RM = glm::rotate(RM, 0.0f, glm::vec3(0, 1, 0));
 		OM = TM * RM * SM;
 	}
-	
+
 	glm::mat4 getOM() {
 		return OM;
 	}
@@ -84,12 +66,6 @@ public:
 	void setRotate(glm::mat4 inputRM) {
 		RM = inputRM;
 	}
-
-
-
-
-	
-
 
 	//Returns if target has been set
 	bool getTargetSet() {
@@ -155,11 +131,11 @@ public:
 	}
 
 	//Method to fire missile
-	void fireMissile() {
-		if (isFired == false && isDetonated == false) {
+	void fireMissile(glm::mat4 r, glm::mat4 t) {
+			RM = r;
+			TM = t;
 			isFired = true;
 			isVisible = true;
-		}
 	}
 
 	//Will take source OM, target1 OM, target2 OM
@@ -238,36 +214,6 @@ public:
 		}		
 	}
 
-	//function to chase target
-	void faceShip(glm::mat4 target) {
-		//Get the looking at vector from the the chaser
-		L = glm::normalize(getIn(OM));
-
-		//Get distance between the target and chaser
-		T = glm::normalize(getPosition(target) - getPosition(OM));
-
-		if (colinear(L, T, 0.1f)) {
-			float CLATtoE = getDistance(getPosition(OM) + getIn(OM), getPosition(target));
-			float CtoE = getDistance(getPosition(OM), getPosition(target));
-
-			if (CtoE < CLATtoE) {
-				axis = glm::normalize(glm::cross(T, getUp(OM))); //AOR
-				angle = PI + acos(glm::dot(T, L));
-				RM = glm::rotate(RM, angle, axis);
-			}
-			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
-		}
-		else {
-			axis = glm::normalize(glm::cross(T, L)); //AOR
-			angle = acos(glm::dot(T, L));
-
-			if (getDistance(getPosition(OM), getPosition(target)) > 0.5f) {
-				angle = (2 * PI) - acos(glm::dot(T, L));
-				RM = glm::rotate(RM, angle, axis);
-			}
-			OM = glm::translate(TM, getPosition(OM)) * RM * SM;
-		}
-	}
 	glm::vec3 getPos() {
 		return position;
 	}
@@ -287,21 +233,29 @@ public:
 	glm::vec3 getForward() {
 		return forward;
 	}
-
-
-
-
-
+	bool anyLeft() {
+		return !noMore;
+	}
+	bool isAlive() {
+		return isLive;
+	}
     void update(){
 		
 		updates++;
-		
-		//Check for max updates and detonate
-		if (updates == 2000) {
-			isDetonated = true;
-			isVisible = false;
+		if (updates >= 200) {
+			isLive = true;
 		}
-		
+		//Check for max updates and detonate
+		if (updates == 2000 || hitTarget) {
+			//isDetonated = true;
+			isVisible = false;
+			hitTarget = false;
+			isLive = false;
+			amount--;
+		}
+		if (amount == 0) {
+			noMore = true;
+		}
 		step++;
 		forward = getIn(OM) * (float)step * (float)stepDistance;
 		TM = glm::translate(TM, forward);
@@ -309,23 +263,6 @@ public:
 		step = 0;
     }
 
-	void updateShip() {
-
-		updates++;
-
-		//Check for max updates and detonate
-		if (updates == 2000) {
-			isDetonated = true;
-			isVisible = false;
-		}
-
-		step++;
-		forward = getIn(OM) * (float)step * (float)stepDistance;
-		TM = glm::translate(TM, forward);
-		OM = TM * RM * glm::scale(glm::mat4(), glm::vec3(20.478f));
-		
-		step = 0;
-	}
 };
 
 

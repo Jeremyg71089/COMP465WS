@@ -127,9 +127,9 @@ void init() {
 		
 	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
 	player = new Player(curShipPos, scale[0]);
-	wMissile = new Missile(translate[6], scale[6], false);
-	uMissile = new Missile(translate[7], scale[9], true);
-	sMissile = new Missile(translate[8], scale[8], true);
+	wMissile = new Missile(translate[6], scale[6], false, 9);
+	uMissile = new Missile(translate[7], scale[9], true, 5);
+	sMissile = new Missile(translate[8], scale[8], true, 5);
 
 	//Start missles with the original position
 	modelMatrix[6] = wMissile->getOM();
@@ -234,7 +234,10 @@ void update(int i) {
 			modelMatrix[m] = glm::translate(identity, temp) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		
 		}
-		else if (m == 6) { //Warbird missle object index
+		else if (m == 6 || m == 7 || m == 8) {
+			
+		}
+		/*else if (m == 6) { //Warbird missle object index
 			
 				//Check if warbird missile fired, if so then keep it updated until it collides or detonates
 				if (wMissile->getFired()) {
@@ -255,8 +258,8 @@ void update(int i) {
 						if (currWMissile < wMissilesTtl) {
 							wMissile = new Missile(scale[m], false);
 							wMissile->setTM(player->getTM());
-							wMissile->setRM(player->getRM());	
-							wMissile->setOM(player->getTM() * player->getRM() * wMissile->getSM());
+							wMissile->setRM(player->getRM());
+							wMissile->setOM(player->getOM());
 						}						
 					}
 
@@ -274,7 +277,7 @@ void update(int i) {
 								wMissile = new Missile(scale[m], false);
 								wMissile->setTM(player->getTM());
 								wMissile->setRM(player->getRM());
-								wMissile->setOM(player->getTM() * player->getRM() * wMissile->getSM());
+								wMissile->setOM(player->getOM());
 							}
 
 							//Mark which missile site as destroyed
@@ -300,13 +303,10 @@ void update(int i) {
 				else {
 
 					//Get the forward amount from the player that changed and apply it to the current missile
-					wMissile->setTM(glm::translate(wMissile->getTM(), player->getForward()));
+					wMissile->setTM(player->getTM());
 					wMissile->setRM(player->getRM());
-					modelMatrix[m] = wMissile->getTM() * wMissile->getRM() * wMissile->getSM();
-					wMissile->setOM(modelMatrix[m]);
-					
+					wMissile->setOM(player->getOM());
 				}
-
 				modelMatrix[m] = wMissile->getOM();
 		}
 		else if (!uMissilesOut && m == 7) { //Unum missile object index
@@ -319,7 +319,7 @@ void update(int i) {
 			3. facetarget after 200 updates-Done
 			4. check if detonated before hitting target-Done
 			5. check if collision with target-Done
-			*/
+			
 
 			//Check if ship is within range and set it as a target
 			if (!uMissile->getTargetSet()) {				
@@ -460,7 +460,7 @@ void update(int i) {
 
 			}
 
-		} 
+		}*/
 		else {//Regular equation for rotating around the y-axis
 			modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 
@@ -494,7 +494,7 @@ void keyboard(unsigned char key, int x, int y) {
 		
 		//If in cadet mode, the current fired missile must detonate or collide before firing again
 		if (!wMissile->getFired() && currWMissile < wMissilesTtl) {			 
-			wMissile->fireMissile();
+			wMissile->fireMissile(player->getRM(),player->getTM());
 			wMissile->setClosestTarget(modelMatrix[9], modelMatrix[10], 9, 10, uSiteDestroyed, sSiteDestroyed);
 			wMissileCt--;				
 		} 

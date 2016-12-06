@@ -66,7 +66,6 @@ public:
 		//Use translation vector to get transformation matrix
 		TM = t;
 		//create a matrix with translation vector in order to get hypothetical OM
-		
 		//use this hypothetical OM to get the lat vector of where the ship would be
 		//after it changes position
 		L = getIn(t);
@@ -90,7 +89,6 @@ public:
 		//we rotate it around the identity because we do not need take the current
 		//RM into account
 		RM = glm::rotate(glm::mat4(), angle, axis);
-		OM = TM * RM * SM;
 	}
 
 	glm::vec3 getPos() {
