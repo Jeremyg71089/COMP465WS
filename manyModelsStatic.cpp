@@ -29,7 +29,6 @@ glm::vec3 tempVec;
 glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4() };
 float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f, 0.0f,0.004f, 0.002f, 0.004f, 0.002f }; //rotation rates for the orbiting
 float currentRadian[nModels] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; //the current radians meant for rotating
-
 //Shader handles, matrices, etc
 GLuint MVP;  //Model View Projection matrix's handle
 GLuint vPosition[nModels], vColor[nModels], vNormal[nModels];   //vPosition, vColor, vNormal handles for models
@@ -197,7 +196,6 @@ void display() {
 			glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
 			glBindVertexArray(VAO[m]);
 			glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
-		
 		}
 
 		glutSwapBuffers();
@@ -215,7 +213,6 @@ void display() {
 			frameCount = 0;
 			updateTitle();
 		}
-	//}
 }
 
 
@@ -223,22 +220,21 @@ void update(int i) {
 	
 	glutTimerFunc(timerDelay, update, 1);
 	player->update();
-
-	
 	//Create rotation matrices for each model
 	for (int m = 0; m < nModels; m++) { 
 		rotation[m] = glm::rotate(rotation[m], rotateRadian[m], glm::vec3(0, 1, 0));
-		
 		if (m == 0) {
 
 			modelMatrix[m] = player->getOM(); //Get player's OM matrix and update			
 		
-		} else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
+		}
+		else if (m == 4 || m == 5) { //for the moons to rotate around Duo equation is different than orbiting around the y axis
 
 			glm::vec3 temp = getPosition(modelMatrix[3]);
 			modelMatrix[m] = glm::translate(identity, temp) * rotation[m] * glm::translate(identity, translate[m]) * glm::translate(identity, -1.0f * translate[3]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
 		
-		} else if (m == 6) { //Warbird missle object index
+		}
+		else if (m == 6) { //Warbird missle object index
 			
 				//Check if warbird missile fired, if so then keep it updated until it collides or detonates
 				if (wMissile->getFired()) {
@@ -300,7 +296,8 @@ void update(int i) {
 							}
 						}
 					}
-				} else {
+				} 
+				else {
 
 					//Get the forward amount from the player that changed and apply it to the current missile
 					wMissile->setTM(glm::translate(wMissile->getTM(), player->getForward()));
@@ -392,7 +389,8 @@ void update(int i) {
 
 			}
 
-		} else if (!sMissilesOut && m == 8) { //Secundus missile object
+		} 
+		else if (!sMissilesOut && m == 8) { //Secundus missile object
 
 			//Check if ship is within range and set it as a target
 			if (!sMissile->getTargetSet()) {
@@ -462,8 +460,10 @@ void update(int i) {
 
 			}
 
-		} else {//Regular equation for rotating around the y-axis
+		} 
+		else {//Regular equation for rotating around the y-axis
 			modelMatrix[m] = rotation[m] * glm::translate(glm::mat4(), translate[m]) * glm::scale(glm::mat4(), glm::vec3(scale[m]));
+
 		}
 	}
 	if (currentCamera == 2) {
@@ -483,6 +483,7 @@ void update(int i) {
 //pressing v adds one to the index 
 //pressing x subtracts from the index
 void keyboard(unsigned char key, int x, int y) {
+	
 	if (timerDelayCounter >= 4) {
 		timerDelayCounter = 0;
 	}
@@ -532,10 +533,10 @@ void keyboard(unsigned char key, int x, int y) {
 		break;
 
 	case 'w': case 'W': //Warp ship % nPlanets		
-		tempMat = rotation[nextWarp] * glm::translate(identity, translate[nextWarp] + glm::vec3(0.0f, 0.0f, -8000.0f)) * glm::scale(glm::mat4(), glm::vec3(scale[0]));
-		tempVec = getPosition(tempMat);
-		player->warp(modelMatrix[nextWarp],rotation[nextWarp], tempVec);
-
+		tempVec = glm::normalize(getIn(modelMatrix[nextWarp]));
+		tempMat = glm::translate(identity, tempVec * 8000.0f);
+		player->warp(modelMatrix[nextWarp],tempMat);
+		printf("X:%f Y:%f Z:%f \n", getIn(modelMatrix[nextWarp]).x, getIn(modelMatrix[nextWarp]).y, getIn(modelMatrix[nextWarp]).z);
 		//If missile isn't fired, then move it with the ship.
 		if (!wMissile->getFired()) {
 			wMissile->setTM(player->getTM());

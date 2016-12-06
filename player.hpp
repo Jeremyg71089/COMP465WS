@@ -62,17 +62,17 @@ public:
 		isGravity = !isGravity;
 	}
 	//function to warp
-	void warp(glm::mat4 p,glm::mat4 r, glm::vec3 t) {
+	void warp(glm::mat4 p, glm::mat4 t) {
 		//Use translation vector to get transformation matrix
-		TM = glm::translate(glm::mat4(), t);
+		TM = t;
 		//create a matrix with translation vector in order to get hypothetical OM
-		glm::mat4 tempMat = glm::translate(glm::mat4(), t) *  SM;
+		
 		//use this hypothetical OM to get the lat vector of where the ship would be
 		//after it changes position
-		L = getIn(tempMat);
+		L = getIn(t);
 		//get Target vector which comes from the position the ship is going to be at
 		//after warping and the position of the planet
-		T = getPosition(p) - getPosition(tempMat);
+		T = getPosition(p) - getPosition(t);
 		//normalize both vectors
 		T = glm::normalize(T);
 		L = glm::normalize(L);
