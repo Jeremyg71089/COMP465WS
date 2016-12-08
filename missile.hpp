@@ -16,8 +16,7 @@ private:
 	bool isSite;
 	bool targetSet = false;
 	bool hitTarget = false;
-	int targetVal = -1;
-	int updates;
+	int updates = 0;
 	int step = 0;
 	int stepDistance = 0;
 	float angle = 0.0f;
@@ -46,7 +45,6 @@ public:
 		else {
 			stepDistance = 20;
 		}
-		updates = 0;
 		//position = translate;
 		TM = glm::translate(TM, translate);
 		SM = glm::scale(glm::mat4(), scale);
@@ -85,12 +83,6 @@ public:
 	void updateTargetPos(glm::mat4 targetPos) {
 		target = targetPos;
 	}
-
-	//Returns which target has been set
-	int getTargetVal() {
-		return targetVal;
-	}
-
 
 	glm::mat4 getTM() {
 		return TM;
@@ -136,39 +128,53 @@ public:
 			TM = t;
 			isFired = true;
 			isVisible = true;
+			OM = TM * RM * SM;
 	}
 
 	//Will take source OM, target1 OM, target2 OM
 	//Will return 0 if there is no target within range, 1 if first target is in range, and 	2 if second target is within range 
-	void setClosestTarget(glm::mat4 target1, glm::mat4 target2, int index1, int index2, boolean target1Des, boolean target2Des) {
-
+	int setClosestTarget(glm::mat4 target1, glm::mat4 target2, boolean target1Des, boolean target2Des) {
+		int result = 0;
 		float target1Distance = distance(getPosition(OM), getPosition(target1));
 		float target2Distance = distance(getPosition(OM), getPosition(target2));
 
-		if (target1Distance <= 5000.0f || target2Distance <= 5000.0f) {
-			 if (target1Distance < target2Distance && !target1Des) {
-				target = target1;
-				targetSet = true;
-				targetVal = index1;
-			 }
-			else if (target2Distance < target1Distance && !target2Des) {
-				target = target2;
-				targetSet = true;
-				targetVal = index2;
+		if ((target1Distance <= 5000.0f && !target1Des) || (target2Distance <= 5000.0f && !target2Des)) {
+			if ((target1Distance <= 5000.0f && !target1Des) && (target2Distance <= 5000.0f && !target2Des)) {
+				if (target1Distance < target2Distance) {
+					target = target1;
+					targetSet = true;
+					result = 1;
+				}
+				else  {
+					target = target2;
+					targetSet = true;
+					result = 2;
+				}
+			} 
+			else if (target1Distance <= 5000.0f && !target1Des) {
+				result = 1;
+			}
+			else {
+				result = 2;
 			}
 		}
-
+		if (result > 0) {
+			isTracking = true;
+		}
+		return result;
 	}
-
+	bool getTracking() {
+		return isTracking;
+	}
+	void tracked() {
+		isTracking = true;
+	}
 	//Will set target to ship
 	void setClosestTarget(glm::mat4 target1) {
-
 		float targetDistance = distance(getPosition(OM), getPosition(target1));
-
 		if (targetDistance <= 5000.0f) {
 			target = target1;
 			targetSet = true;
-			targetVal = 0;
 			isFired = true;
 		}
 	}
@@ -179,7 +185,7 @@ public:
 		if (distance(pos1, pos2) <= (radius1 + radius2)) {
 			isCollided = true;
 			isVisible = false;
-			isDetonated = true;
+			hitTarget = true;
 		}
 		return isCollided;
 	}
@@ -240,27 +246,31 @@ public:
 		return isLive;
 	}
     void update(){
-		
-		updates++;
+		if (isFired) {
+			updates++;
+			forward = glm::normalize(getIn(OM)) *  (float)stepDistance;
+			TM = glm::translate(TM, forward);
+			OM = TM * RM * SM;
+		}
 		if (updates >= 200) {
 			isLive = true;
 		}
 		//Check for max updates and detonate
-		if (updates == 2000 || hitTarget) {
+		if (updates >= 2000 || hitTarget) {
 			//isDetonated = true;
 			isVisible = false;
 			hitTarget = false;
 			isLive = false;
 			amount--;
+			updates = 0;
+			isTracking = false;
+			isCollided = false;
+			isFired = false;
 		}
 		if (amount == 0) {
 			noMore = true;
 		}
-		step++;
-		forward = getIn(OM) * (float)step * (float)stepDistance;
-		TM = glm::translate(TM, forward);
-		OM = TM * RM * SM;
-		step = 0;
+		
     }
 
 };
