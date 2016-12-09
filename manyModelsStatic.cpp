@@ -264,6 +264,7 @@ void update(int i) {
 			if (!uMissile->getFired()) {
 					if (distance(getPosition(player->getOM()), getPosition(modelMatrix[9])) <= 5000.0f) {
 						uMissile->fireMissile(identity, glm::translate(identity, getPosition(modelMatrix[9])));
+						uMissileCt--;
 						uMissile->faceTarget(player->getOM());
 					}
 				modelMatrix[m] =  glm::translate(identity, getPosition(modelMatrix[9])) * glm::scale(identity,scale[m]);
@@ -282,6 +283,7 @@ void update(int i) {
 				if (distance(getPosition(player->getOM()), getPosition(modelMatrix[10])) <= 5000.0f) {
 					sMissile->fireMissile(identity, glm::translate(identity, getPosition(modelMatrix[10])));
 					sMissile->faceTarget(player->getOM());
+					sMissileCt--;
 				}
 				modelMatrix[m] = glm::translate(identity, getPosition(modelMatrix[10])) * glm::scale(identity, scale[m]);
 			}
@@ -328,7 +330,8 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'f': case 'F': //Launch ship missile
 		//If in cadet mode, the current fired missile must detonate or collide before firing again
 		if (!wMissile->getFired() && wMissile->anyLeft()) {			 
-			wMissile->fireMissile(player->getRM(),player->getTM());				
+			wMissile->fireMissile(player->getRM(),player->getTM());	
+			wMissileCt--;
 		} 
 		break;
 
