@@ -1,12 +1,3 @@
-/* 
-SimpleVertex.glsl
-
-Vertex shader with position, color, normal and ModelViewProject
-input and color output.
-
-Mike Barnes
-8/17/2013
-*/
 
 # version 330 core
 in vec4 vPosition;

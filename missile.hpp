@@ -8,9 +8,7 @@ class Missile{
 private:
 	bool isLive = false;
 	bool noMore = false;
-	bool isVisible = false;
 	bool isFired = false;
-	bool isDetonated = false;
 	bool isCollided = false;
 	bool isTracking = false;
 	bool isSite;
@@ -45,10 +43,8 @@ public:
 		else {
 			stepDistance = 20;
 		}
-		//position = translate;
 		TM = glm::translate(TM, translate);
 		SM = glm::scale(glm::mat4(), scale);
-		//RM = glm::rotate(RM, 0.0f, glm::vec3(0, 1, 0));
 		OM = TM * RM * SM;
 	}
 
@@ -106,28 +102,11 @@ public:
 	bool getFired() {
 		return isFired;
 	}
-
-	//Method to check if detonated
-	bool detonated() {
-		return isDetonated;
-	}
-
-	//Need a fucntion to detect collisions
-
-	void setVisible(bool visible) {
-		isVisible = visible;
-	}
-
-	bool getVisible() {
-		return isVisible;
-	}
-
 	//Method to fire missile
 	void fireMissile(glm::mat4 r, glm::mat4 t) {
 			RM = r;
 			TM = t;
 			isFired = true;
-			isVisible = true;
 			OM = TM * RM * SM;
 	}
 
@@ -184,7 +163,6 @@ public:
 		 
 		if (distance(pos1, pos2) <= (radius1 + radius2)) {
 			isCollided = true;
-			isVisible = false;
 			hitTarget = true;
 		}
 		return isCollided;
@@ -206,8 +184,7 @@ public:
 				axis = glm::normalize(glm::cross(T, getUp(OM))); //AOR
 				RM = glm::rotate(RM, PI, axis);
 				OM = glm::translate(TM, getPosition(OM)) * RM * SM;
-			}
-			
+			}	
 		}
 		else {
 			axis = glm::normalize(glm::cross(T, L)); //AOR
@@ -258,7 +235,6 @@ public:
 		//Check for max updates and detonate
 		if (updates >= 2000 || hitTarget) {
 			//isDetonated = true;
-			isVisible = false;
 			hitTarget = false;
 			isLive = false;
 			amount--;

@@ -1,11 +1,3 @@
-/* 
-SimpleFragment.glsl
-
-Fragment shader with color input and output.
-
-Mike Barnes
-8/17/2013
-*/
 
 # version 330 core
 in vec3 Position;
@@ -18,9 +10,7 @@ uniform vec3 PointLightIntensity;
 uniform bool HeadLightOn; // toggles set in application
 uniform bool PointLightOn;
 uniform bool AmbientOn; // glUniform1f(debugSetOn, debugOn);
-// local "debug color" variables
-vec3 ambientColor = vec3(1.0, 0.0, 0.0); // red ambient
-vec3 diffuseColor = vec3(0.0, 1.0, 0.0); // green diffuse
+
 out vec4 FragColor;
 vec3 vLight(vec3 LightPosition, vec3 LightIntensity,bool directional) {
 	float ambient = 0.2f; // scale directional ambient

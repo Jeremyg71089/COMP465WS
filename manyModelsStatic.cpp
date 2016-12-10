@@ -26,6 +26,8 @@ bool idleTimerFlag = false;  //Interval or idle timer ?
 bool gravity = false; //Boolean for Gravity
 glm::mat4 identity(1.0f), tempMat;
 glm::vec3 tempVec;
+glm::vec3 pointLightIntensity(0.15f,0.15f,0.15f);
+glm::vec3 headLightIntensity(0.125f,0.3f,0.1f);
 glm::mat4 rotation[nModels] = { glm::mat4(),glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4() ,glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4(), glm::mat4() };
 float rotateRadian[nModels] = { 0.0f,0.0f,0.004f,0.002f,0.004f,0.002f, 0.0f,0.004f, 0.002f, 0.004f, 0.002f }; //rotation rates for the orbiting
 float currentRadian[nModels] = { 0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; //the current radians meant for rotating
@@ -199,15 +201,14 @@ void display() {
 			//Set the view matrix here so cameras can be dynamic
 			viewMatrix = camera[currentCamera];
 			normalMatrix = glm::mat3(viewMatrix * modelMatrix[m]);
-			//glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr( modelMatrix)); 
 			ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix[m];
 			glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
 			glUniformMatrix3fv(NM, 1, GL_FALSE, glm::value_ptr(normalMatrix));
 			glUniformMatrix4fv(MV, 1, GL_FALSE, glm::value_ptr(viewMatrix * modelMatrix[m]));
-			glUniform3fv(PLP, 1,  glm::value_ptr(glm::vec3(0)));
-			glUniform3fv(PLI, 1, glm::value_ptr(glm::vec3(.18 ,.03 , .05)));
+			glUniform3fv(PLP, 1, glm::value_ptr(glm::vec3(0)));
+			glUniform3fv(PLI, 1, glm::value_ptr(pointLightIntensity));
 			glUniform3fv(HLP, 1, glm::value_ptr(getPosition(viewMatrix)));
-			glUniform3fv(HLI, 1, glm::value_ptr(glm::vec3(.1, .1, .1)));
+			glUniform3fv(HLI, 1, glm::value_ptr(headLightIntensity));
 			glUniform1f(PLO, pointLightOn);
 			glUniform1f(HLO, headLightOn);
 			glUniform1f(AO, ambientOn);
