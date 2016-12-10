@@ -9,15 +9,19 @@ Mike Barnes
 */
 
 # version 330 core
-
 in vec4 vPosition;
 in vec4 vColor;
-in vec3 vNormal;  // not used
-
-uniform mat4 ModelViewProjection;  // = projection * view * model
-out vec4 color;
+in vec3 vNormal;
+out vec3 Position;
+out vec3 Normal;
+out vec4 Color;
+uniform mat3 NormalMatrix;
+uniform mat4 ModelView;
+uniform mat4 MVP;
 
 void main() {
-  color = vColor;
-  gl_Position = ModelViewProjection * vPosition;
-  }
+	gl_Position = MVP * vPosition;
+	Position = (ModelView * vPosition).xyz;
+	Normal = normalize(NormalMatrix * vNormal);
+	Color = vColor;
+}

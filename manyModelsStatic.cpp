@@ -83,7 +83,9 @@ bool wDestroyed = false, uMissilesOut = true, sMissilesOut = true;
 int missileUpdates = 0, numUpdates = 0;
 int currWMissile = 0, currUMissile = 0, currSMissile = 0;
 Missile *wMissile, *uMissile, *sMissile;
-
+GLuint NM, MV, HLP, HLI, PLP, PLI, PLO, HLO, AO;
+glm::mat3 normalMatrix;
+bool pointLightOn = true, headLightOn = true, ambientOn = true;
 void specialKeyEvent(int key, int x, int y)
 {
 if (key == GLUT_KEY_UP && glutGetModifiers() != GLUT_ACTIVE_CTRL)
@@ -125,7 +127,18 @@ void init() {
 		scale[i] = glm::vec3(modelSize[i] * 1.0f / modelBR[i]);
 	}
 		
-	MVP = glGetUniformLocation(shaderProgram, "ModelViewProjection");
+	MVP = glGetUniformLocation(shaderProgram, "MVP");
+	NM = glGetUniformLocation(shaderProgram, "NormalMatrix");
+	MV = glGetUniformLocation(shaderProgram, "ModelView");
+	HLI = glGetUniformLocation(shaderProgram, "HeadLightIntensity");
+	HLP = glGetUniformLocation(shaderProgram, "HeadLightPosition");
+	PLP = glGetUniformLocation(shaderProgram, "PointLightPosition");
+	PLI= glGetUniformLocation(shaderProgram, "PointLightIntensity");
+	PLO = glGetUniformLocation(shaderProgram, "PointLightOn");
+	HLO = glGetUniformLocation(shaderProgram, "HeadLightOn");
+	AO = glGetUniformLocation(shaderProgram, "AmbientOn");
+	
+
 	player = new Player(curShipPos, scale[0]);
 	wMissile = new Missile(translate[6], scale[6], false, 9);
 	uMissile = new Missile(translate[7], scale[7], true, 5);
@@ -185,10 +198,19 @@ void display() {
 
 			//Set the view matrix here so cameras can be dynamic
 			viewMatrix = camera[currentCamera];
-
+			normalMatrix = glm::mat3(viewMatrix * modelMatrix[m]);
 			//glUniformMatrix4fv(model, 1, GL_FALSE, glm::value_ptr( modelMatrix)); 
 			ModelViewProjectionMatrix = projectionMatrix * viewMatrix * modelMatrix[m];
 			glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(ModelViewProjectionMatrix));
+			glUniformMatrix3fv(NM, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+			glUniformMatrix4fv(MV, 1, GL_FALSE, glm::value_ptr(viewMatrix * modelMatrix[m]));
+			glUniform3fv(PLP, 1,  glm::value_ptr(glm::vec3(0)));
+			glUniform3fv(PLI, 1, glm::value_ptr(glm::vec3(.18 ,.03 , .05)));
+			glUniform3fv(HLP, 1, glm::value_ptr(getPosition(viewMatrix)));
+			glUniform3fv(HLI, 1, glm::value_ptr(glm::vec3(.1, .1, .1)));
+			glUniform1f(PLO, pointLightOn);
+			glUniform1f(HLO, headLightOn);
+			glUniform1f(AO, ambientOn);
 			glBindVertexArray(VAO[m]);
 			glDrawArrays(GL_TRIANGLES, 0, nVertices[m]);
 		}
@@ -334,7 +356,15 @@ void keyboard(unsigned char key, int x, int y) {
 			wMissileCt--;
 		} 
 		break;
-
+	case 'a': case 'A':
+		ambientOn = !ambientOn;
+		break;
+	case 'h': case 'H':
+		headLightOn = !headLightOn;
+		break;
+	case 'p': case 'P':
+		pointLightOn = !pointLightOn;
+		break;
 	case 'g': case 'G': //Toggle gravity
 		player->changeGravity();
 		break;
